@@ -150,6 +150,13 @@ export function formatData(data: Record<string, unknown>) {
   return `{ ${output.map(([key, value]) => `${key}: ${value},`)} }`
 }
 
+/** Guard to assert that a Role has a name and id */
+export function isValidRole(
+  Role: Role
+): Role is Role & { id: string; name: string } {
+  return !!Role.name && !!Role.id
+}
+
 /** Guard to assert that a Client has a name and id */
 export function isValidClient(
   Client: Client
