@@ -16,6 +16,7 @@ A utility for managing rule definitions on an Auth0 tenant.
   - [Structure and compilation](#structure-and-compilation)
   - [Defining Rules](#defining-rules)
     - [Basic rule structure](#basic-rule-structure)
+    - [External dependencies](#external-dependencies)
     - [The rule manifest](#the-rule-manifest)
     - [Rule ordering](#rule-ordering)
     - [Templating](#templating)
@@ -191,10 +192,6 @@ There are two steps to writing an Auth0 rule:
 Rules are defined in the `./rules/src` directory. Each rule lives in its own
 file. Rules are written as Typescript files (`.ts` extension).
 
-Because the rules will be executed in the context of the Auth0 WebTask
-environment, they should not have any external dependencies. This means that the
-only imports in a rule definition file should be TypeScript typings.
-
 ### Basic rule structure
 
 A basic rule looks like this:
@@ -217,6 +214,69 @@ async function myAwesomeRule(
   callback(null, user, context)
 }
 ```
+
+### External dependencies
+
+Because the rules will be executed in the context of the Auth0 WebTask
+environment, they can't use imports from other files. This means that the only
+`import` statements in a rule definition file should be TypeScript typings.
+
+```ts
+// These are type definitions, which will be removed at build time by the TS compiler
+// This are fine to import in your rule file
+import {
+  IAuth0RuleCallback,
+  IAuth0RuleContext,
+  IAuth0RuleUser,
+} from '@tepez/auth0-rules-types'
+// This will not work when run on Auth0 🚨
+import { doSomething } from 'my-lib'
+
+async function myAwesomeRule(
+  user: IAuth0RuleUser<unknown, unknown>,
+  context: IAuth0RuleContext,
+  callback: IAuth0RuleCallback<unknown, unknown>
+): Promise<void> {
+  // doSomething() will not be available here 🚨
+  const foo = doSomething(user.id)
+  // ...
+  return callback(null, user, context)
+}
+```
+
+It _is_ possible to use external libraries, but they need to be dynamically
+`require`d at runtime. For example:
+
+```ts
+// Only type definitions imported, so we're all OK here
+import {
+  IAuth0RuleUser,
+  IAuth0RuleContext,
+  IAuth0RuleCallback,
+} from '@tepez/auth0-rules-types'
+
+async function addDefaultRole(
+  user: IAuth0RuleUser<unknown, unknown>,
+  context: IAuth0RuleContext,
+  callback: IAuth0RuleCallback<unknown, unknown>
+): Promise<void> {
+  // Dynamic require works fine 👍
+  const ManagementClient = require('auth0@2.31.0').ManagementClient
+
+  const management = new ManagementClient({
+    domain: auth0.domain,
+    clientId: configuration.AUTH0_CLIENT_ID,
+    clientSecret: configuration.AUTH0_CLIENT_SECRET,
+    scope: 'read:users update:users read:roles',
+  })
+  // ...
+}
+```
+
+For a full list of modules that can be dynamically required, see the
+[Auth0 Extensions 'Can I Require' tool](https://auth0-extensions.github.io/canirequire/).
+Further discussion about using modules can be found
+[in the Auth0 docs](https://auth0.com/docs/best-practices/rules-best-practices/rules-environment-best-practices).
 
 ### The rule manifest
 
