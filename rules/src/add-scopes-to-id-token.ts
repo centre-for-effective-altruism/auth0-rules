@@ -9,7 +9,7 @@ function addScopesToIdToken(
   context: IAuth0RuleContext,
   callback: IAuth0RuleCallback<unknown, unknown>
 ) {
-  const requiredApplications = ['{{{whitelist}}}']
+  const requiredApplications: string[] = TEMPLATE_DATA.whitelist
   // only run if our application is on the list
   if (requiredApplications.includes(context.clientID)) {
     const namespace = 'https://parfit.effectivealtruism.org'

@@ -1,5 +1,4 @@
-import auth0 from './lib/client'
-import { getAllClients, getValueAndComment } from './lib/utils'
+import { getAllClients, getCommentValue, isValidClient } from './lib/utils'
 
 /**
  * List of rules that should exist on the Auth0 tenant.
@@ -24,11 +23,14 @@ const MANIFEST: RuleDefinition[] = [
     getData: async () => {
       const applicationNames = ['EA Funds', 'Giving What We Can']
       const Clients = await getAllClients()
-      const whitelist = Clients.filter(
-        (Client) => !!Client.name && applicationNames.includes(Client.name)
-      )
-        .map((Client) => getValueAndComment(Client.client_id, Client.name))
-        .join(',\n')
+      const whitelist = Clients.filter(isValidClient)
+        .filter((Client) => applicationNames.includes(Client.name))
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
       return { whitelist }
     },
   },
@@ -39,11 +41,14 @@ const MANIFEST: RuleDefinition[] = [
     getData: async () => {
       const applicationNames = ['Giving What We Can']
       const Clients = await getAllClients()
-      const whitelist = Clients.filter(
-        (Client) => !!Client.name && applicationNames.includes(Client.name)
-      )
-        .map((Client) => getValueAndComment(Client.client_id, Client.name))
-        .join(',\n')
+      const whitelist = Clients.filter(isValidClient)
+        .filter((Client) => applicationNames.includes(Client.name))
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
       return { whitelist }
     },
   },

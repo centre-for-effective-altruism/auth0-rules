@@ -11,7 +11,7 @@ async function filterScopes(
   callback: IAuth0RuleCallback<unknown, unknown>
 ): Promise<void> {
   // Whitelist of applications that can access the full set of scopes
-  const applicationWhitelist = ['{{{ whitelist }}}']
+  const applicationWhitelist: string[] = TEMPLATE_DATA.whitelist
 
   // Set up a management client so that we can read the user's full set of permissions
   const ManagementClient = require('auth0@2.31.0').ManagementClient

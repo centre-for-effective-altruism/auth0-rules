@@ -9,6 +9,8 @@ declare global {
     /** Is the rule enabled. */
     enabled: boolean
     /** Function to get any data required by this rule */
-    getData?: () => Record<string, string> | Promise<Record<string, string>>
+    getData?: () => Record<string, unknown> | Promise<Record<string, unknown>>
   }
+
+  const TEMPLATE_DATA: Record<string, any>
 }
