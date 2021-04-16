@@ -273,14 +273,14 @@ When rules are compiled, any rule that has a `getData()` property on its
 manifest will inject a `TEMPLATE_DATA` variable into the top of the function
 declaration:
 
-```ts
+```js
 function myGreatFunction() {
   // Template data
   const TEMPLATE_DATA = {
     whitelist: ['abc123def456'],
   }
 
-  const whitelist: string[] = TEMPLATE_DATA.whitelist
+  const whitelist = TEMPLATE_DATA.whitelist
   // ... do stuff
 }
 ```
@@ -345,7 +345,7 @@ function addScopesToIdToken(
   context: IAuth0RuleContext,
   callback: IAuth0RuleCallback<unknown, unknown>
 ) {
-  const requiredApplications = TEMPLATE_DATA.whitelist
+  const requiredApplications: string[] = TEMPLATE_DATA.whitelist
   // only run if our application is on the list
   if (requiredApplications.includes(context.clientID)) {
     const namespace = 'https://parfit.effectivealtruism.org'
