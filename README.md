@@ -19,6 +19,7 @@ A utility for managing rule definitions on an Auth0 tenant.
     - [The rule manifest](#the-rule-manifest)
     - [Rule ordering](#rule-ordering)
     - [Templating](#templating)
+      - [Templating helpers](#templating-helpers)
       - [Templating example](#templating-example)
   - [Automatic deploys (`TODO`)](#automatic-deploys-todo)
 
@@ -250,39 +251,87 @@ Rules run in series. When deployed, the rules will be ordered as follows:
 ### Templating
 
 Sometimes, we need to inject variables that will be different on each Auth0
-tenant. In these cases, we can use an inline Handlebars template, that will be
-replaced by data from the `getData()` function in the rule manifest.
+tenant. For example, maybe you only want a rule to apply to certain
+applications, so you want to use a list of these application IDs into your
+function – obviously these IDs will be different on different tenants. Instead
+of hard-coding these values into the rule code, you can instead inject a
+`TEMPLATE_DATA` global, that will be populated by data from the `getData()`
+function in the rule manifest.
 
-In instances where you have a string that should be injected dynamically into
-the template, you should use the following syntax: `{{{ myVar }}}` (where
-`myVar` is a property of the object returned by `getData()`). Quotation marks
-around the string will be automatically removed before the template data is
-injected, so you don't need to double escape them.
-
-While normal Handlebars templates typically use two braces for template
-variables (e.g. `{{ myVar }} `), you probably want to use three (e.g.
-`{{{ myVar }}}`), as the two-brace version will escape HTML characters like
-quotes.
-
-Note that you might have to get creative if you want to inject multiple
-components (e.g. a number of array elements) into the rule. Handlebars is just
-doing a dumb substitution, so you should format whatever you inject as you want
-it to appear in the code (including string quoting etc.). For example:
+The `TEMPLATE_DATA` variable is declared as a TypeScript global with type
+`Record<string, any>`, so rule file will compile happily. It's a good idea to
+type any assignments in your rule function:
 
 ```ts
-// in getData()
-const clientIds = ['foo', 'bar']
-const whitelist = clientIds.map((id) => `'${id}'`).join(', ')
-return { whitelist }
+function myGreatFunction() {
+  const whitelist: string[] = TEMPLATE_DATA.whitelist
+  // ... do stuff
+}
 ```
 
-There is a utility function `getValueAndComment` which can help formatting pairs
-of variables and comments (example below).
+When rules are compiled, any rule that has a `getData()` property on its
+manifest will inject a `TEMPLATE_DATA` variable into the top of the function
+declaration:
+
+```ts
+function myGreatFunction() {
+  // Template data
+  const TEMPLATE_DATA = {
+    whitelist: ['abc123def456'],
+  }
+
+  const whitelist: string[] = TEMPLATE_DATA.whitelist
+  // ... do stuff
+}
+```
+
+You can use any data type for the value of the keys in `TEMPLATE_DATA`. Values
+are passed to `JSON.stringify()` for injection into the code.
+
+#### Templating helpers
+
+**`getCommentValue()`**
+
+Injecting values is all well and good, but a simple list of random object IDs is
+difficult to read. If you have an array of IDs and you want to include
+additional data for better readability, you can use the `getCommentValue()`
+function to build your array of input data.
+
+`getCommentValue()` takes a single argument, which is an object that has a
+`value` property. If you pass an array of these objects as a property of
+`TEMPLATE_DATA`, it will be mapped into an array of just the values in each
+object's respective `value` property.
+
+So, instead of ...
+
+```ts
+const TEMPLATE_DATA = {
+  whitelist: ['abc', 'def'],
+}
+```
+
+... you instead see:
+
+```ts
+const TEMPLATE_DATA = {
+  whitelist: [
+    {
+      name: 'Something descriptive',
+      value: 'abc',
+    },
+    {
+      name: 'Another item',
+      value: 'def',
+    },
+  ].map((item) => item.value),
+}
+```
+
+See the example below for a full demonstration of how this works end-to-end.
 
 #### Templating example
 
-Rule definition (e.g. `./rules/add-scopes-to-id-token.ts`). Note the string
-`{{{ whitelist }}}`, which will be replaced by our injected data.
+Rule definition (e.g. `./rules/add-scopes-to-id-token.ts`).
 
 ```ts
 import {
@@ -296,7 +345,7 @@ function addScopesToIdToken(
   context: IAuth0RuleContext,
   callback: IAuth0RuleCallback<unknown, unknown>
 ) {
-  const requiredApplications = ['{{{ whitelist }}}']
+  const requiredApplications = TEMPLATE_DATA.whitelist
   // only run if our application is on the list
   if (requiredApplications.includes(context.clientID)) {
     const namespace = 'https://parfit.effectivealtruism.org'
@@ -317,13 +366,16 @@ const MANIFEST = [
     file: 'add-scopes-to-id-token',
     enabled: true,
     getData: async () => {
-      const applicationNames = ['My First Application', 'My Second Application']
+      const applicationNames = ['Giving What We Can']
       const Clients = await getAllClients()
-      const whitelist = Clients.filter(
-        (Client) => !!Client.name && applicationNames.includes(Client.name)
-      )
-        .map((Client) => getValueAndComment(Client.client_id, Client.name))
-        .join(',\n')
+      const whitelist = Clients.filter(isValidClient)
+        .filter((Client) => applicationNames.includes(Client.name))
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
       return { whitelist }
     },
   },
@@ -335,7 +387,12 @@ The `getData` call will return the following object:
 
 ```js
 {
-  whitelist: `// My First Application\n'123abc456def',\n//My Second Application\n'987xyz654uvw'`
+  whitelist: [
+    {
+      applicationName: 'Giving What We Can',
+      value: 'abc123def456',
+    },
+  ]
 }
 ```
 
@@ -343,18 +400,22 @@ Which will be compiled into the following rule code:
 
 ```js
 function addScopesToIdToken(user, context, callback) {
-  const requiredApplications = [
-    // My First Application
-    '123abc456def',
-    //My Second Application
-    '987xyz654uvw',
-  ]
+  // Template data
+  const TEMPLATE_DATA = {
+    whitelist: [
+      {
+        applicationName: 'Giving What We Can',
+        value: '9QlMQekWad0NT75NYx50VCgOKfJSN44T',
+      },
+    ].map((item) => item.value),
+  }
+
+  const requiredApplications = TEMPLATE_DATA.whitelist
   // only run if our application is on the list
   if (requiredApplications.includes(context.clientID)) {
     const namespace = 'https://parfit.effectivealtruism.org'
-    context.idToken[`${namespace}/scope`] = context.accessToken.scope
+    context.idToken[`${namespace}/scope`] = context.accessToken.scope.join(' ')
   }
-
   callback(null, user, context)
 }
 ```
