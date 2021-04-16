@@ -12,7 +12,7 @@ async function addDefaultRole(
   try {
     const ManagementClient = require('auth0@2.31.0').ManagementClient
 
-    const DEFAULT_ROLE = 'rol_V2zfbEI2e6IvUHHh'
+    const DEFAULT_ROLES: string[] = TEMPLATE_DATA.defaultRoles
 
     const management = new ManagementClient({
       domain: auth0.domain,
@@ -22,7 +22,7 @@ async function addDefaultRole(
     })
 
     const params = { id: user.user_id }
-    const data = { roles: [DEFAULT_ROLE] }
+    const data = { roles: DEFAULT_ROLES }
 
     // If they're brand new there's no way that they have that role applied
     const count =
@@ -34,7 +34,7 @@ async function addDefaultRole(
     // Otherwise we need to check
     const roles = await management.users.getRoles({ id: user.user_id })
     // If we start going crazy with roles will need to worry about pagination
-    if (!roles.includes(DEFAULT_ROLE)) {
+    if (!DEFAULT_ROLES.every((defaultRole) => roles.includes(defaultRole))) {
       await management.users.assignRoles(params, data)
     }
 

@@ -1,4 +1,10 @@
-import { getAllClients, getCommentValue, isValidClient } from './lib/utils'
+import {
+  getAllClients,
+  getAllRoles,
+  getCommentValue,
+  isValidClient,
+  isValidRole,
+} from './lib/utils'
 
 /**
  * List of rules that should exist on the Auth0 tenant.
@@ -15,6 +21,19 @@ const MANIFEST: RuleDefinition[] = [
     name: 'Add Default Role To All Users',
     file: 'add-default-roles',
     enabled: true,
+    getData: async () => {
+      const defaultRoleNames = [
+        'User-Basic-Role',
+        'Parfit User',
+        'EA Funds User',
+        'Giving What We Can User',
+      ]
+      const Roles = await getAllRoles()
+      const defaultRoles = Roles.filter(isValidRole)
+        .filter((Role) => defaultRoleNames.includes(Role.name))
+        .map((Role) => getCommentValue({ value: Role.id, roleName: Role.name }))
+      return { defaultRoles }
+    },
   },
   {
     name: 'Filter scopes',
