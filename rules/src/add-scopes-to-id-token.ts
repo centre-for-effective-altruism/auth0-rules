@@ -13,7 +13,7 @@ function addScopesToIdToken(
   // only run if our application is on the list
   if (requiredApplications.includes(context.clientID)) {
     const namespace = 'https://parfit.effectivealtruism.org'
-    context.idToken[`${namespace}/scope`] = context.accessToken.scope
+    context.idToken[`${namespace}/scope`] = context.accessToken.scope.join(' ')
   }
 
   callback(null, user, context)
