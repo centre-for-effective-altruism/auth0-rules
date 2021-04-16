@@ -1,4 +1,4 @@
-import { Client, Rule } from 'auth0'
+import { Client, Role, Rule } from 'auth0'
 import { fs } from 'mz'
 import path from 'path'
 import auth0 from './client'
@@ -33,6 +33,9 @@ export const getAllRules = paginateQuery<Rule>(auth0.getRules)
 
 /** Recursively page through all clients (applications) on the Auth0 tenant */
 export const getAllClients = paginateQuery<Client>(auth0.getClients)
+
+/** Recursively page through all roles on the Auth0 tenant */
+export const getAllRoles = paginateQuery<Role>(auth0.getRoles)
 
 const SCRIPTS_DIRECTORY = path.join(__dirname, '../rules')
 

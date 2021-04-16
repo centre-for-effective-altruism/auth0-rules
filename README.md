@@ -140,6 +140,7 @@ application, and needs the following permissions on the `Auth0 Management API`.
 - `read:rules`
 - `update:rules`
 - `read:clients`
+- `read:roles`
 
 _(Note that if you add additional scripts, for example in `getData()` calls in
 the manifest, you might need to give the application additional permissions.)_
