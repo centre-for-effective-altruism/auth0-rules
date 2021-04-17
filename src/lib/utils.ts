@@ -82,9 +82,8 @@ export async function generateRuleScript(ruleDef: RuleDefinition) {
       )
     : scriptBase
 
-  // compile the template and format
-  const script = prettier.format(template, { parser: 'babel' })
-  return script
+  // format the template script
+  return prettier.format(template, { parser: 'babel' })
 }
 
 /** Add nice coloured log output to log messages */
