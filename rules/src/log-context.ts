@@ -15,9 +15,9 @@ function logContext(
   context: IAuth0RuleContext,
   callback: IAuth0RuleCallback<unknown, unknown>
 ): void {
-  console.log(`Rule context`)
+  console.log(`==== Rule context: ====`)
   console.log(context)
-  console.log(`Rule user`)
+  console.log(`==== Rule user: ====`)
   console.log(user)
   return callback(null, user, context)
 }
