@@ -28,9 +28,12 @@ A utility for managing rule definitions on an Auth0 tenant.
 
 ## Context
 
-CEA uses [Auth0](https://auth0.com/) to provide authentication and authorization
-to a number of services (e.g. EA Funds, Giving What We Can, the EA Forum etc).
-When users log in, we run a number of
+[CEA](https://www.centreforeffectivealtruism.org) uses
+[Auth0](https://auth0.com/) to provide authentication and authorization to a
+number of services (e.g. [EA Funds](https://funds.effectivealtruism.org),
+[Giving What We Can](https://www.givingwhatwecan.org)[], the
+[EA Forum](https://forum.effectivealtruism.org) etc). When users log in, we run
+a number of
 [rules (part of Auth0's login pipeline)](https://auth0.com/docs/rules) that
 affect the final login state (e.g. what data is present in the user's access
 token or ID token, which permissions they are allowed to request etc.). From
@@ -105,7 +108,7 @@ The output will look something like:
    const requiredApplications = [
 -    // Something else
 +    // Giving What We Can
-     "9QlMQekWad0NT75NYx50VCgOKfJSN44T",
+     "abc123def456",
    ];
    // only run if our application is on the list
    if (requiredApplications.includes(context.clientID)) {
@@ -138,9 +141,14 @@ You'll need to ensure that the Auth0 tenant has a client application set up to
 work with the CLI. The application should be a **Machine-to-Machine**
 application, and needs the following permissions on the `Auth0 Management API`.
 
+**Base permissions (required to manage rules via the API)**
+
 - `create:rules`
 - `read:rules`
 - `update:rules`
+
+**Permissions used by specific rule generators**
+
 - `read:clients`
 - `read:roles`
 
@@ -465,7 +473,7 @@ function addScopesToIdToken(user, context, callback) {
     whitelist: [
       {
         applicationName: 'Giving What We Can',
-        value: '9QlMQekWad0NT75NYx50VCgOKfJSN44T',
+        value: 'abc123def456',
       },
     ].map((item) => item.value),
   }

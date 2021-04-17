@@ -16,6 +16,10 @@ const MANIFEST: RuleDefinition[] = [
     name: 'Add email to access token',
     file: 'email-to-access-token',
     enabled: true,
+    getData: () => {
+      const namespace = process.env.TOKEN_NAMESPACE
+      return { namespace }
+    },
   },
   {
     name: 'Add Default Role To All Users',
@@ -58,6 +62,10 @@ const MANIFEST: RuleDefinition[] = [
     file: 'add-scopes-to-id-token',
     enabled: true,
     getData: async () => {
+      // Get token namespace
+      const namespace = process.env.TOKEN_NAMESPACE
+
+      // Get the list of applications on the whitelist
       const applicationNames = ['Giving What We Can']
       const Clients = await getAllClients()
       const whitelist = Clients.filter(isValidClient)
@@ -68,7 +76,7 @@ const MANIFEST: RuleDefinition[] = [
             value: Client.client_id,
           })
         )
-      return { whitelist }
+      return { whitelist, namespace }
     },
   },
   {

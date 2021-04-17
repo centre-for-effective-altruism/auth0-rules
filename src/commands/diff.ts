@@ -44,16 +44,15 @@ export default async function run() {
     const lineDelimiter = padEnd('-', ruleDef.name.length + 3, '-')
     console.log(`- ${cyan(ruleDef.name)}:`)
     console.log(lineDelimiter)
+    const firstCharRE = /^(.|\n)/gm
     for (const part of changes) {
-      const changed = part.added || part.removed
       // add a space character to the beginning of unchanged lines to preserve
       // alignment when we add +/- chars
-      const value = changed ? part.value : part.value.replace(/^(.)/gm, ' $1')
       const output = part.added
-        ? green(`+${value}`)
+        ? green(part.value.replace(firstCharRE, '+$1'))
         : part.removed
-        ? redBright(`-${value}`)
-        : grey(`${value}`)
+        ? redBright(part.value.replace(firstCharRE, '-$1'))
+        : grey(part.value.replace(firstCharRE, ' $1'))
       // we're writing character by character, so we do this by piping to
       // STDOUT directly rather than using console.log
       process.stderr.write(output)

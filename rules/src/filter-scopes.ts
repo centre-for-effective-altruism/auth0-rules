@@ -5,6 +5,22 @@ import {
 } from '@tepez/auth0-rules-types'
 import { Permission } from 'auth0'
 
+/**
+ * Filters the scopes available on a user's access token, based on the
+ * application they are using to log in.
+ *
+ * For applications on the whitelist, all scopes are allowed. Otherwise, the
+ * rule only allows a restricted subset. This makes it easy for third party
+ * applications to use our Auth0 system for authentication, without allowing
+ * them to authorize resources that shouldn't be accessible outside of
+ * first-party applications.
+ *
+ * Because we're manually editing the `accessToken.scopes` property, Auth0 will
+ * no longer check that the user actually has the permissions that they are
+ * requesting. Instead, we need to use the Management Client to get the
+ * permissions attached to the user, and only include the union of <allowed
+ * permissions> and <requested permissions> in the access token.
+ */
 async function filterScopes(
   user: IAuth0RuleUser<unknown, unknown>,
   context: IAuth0RuleContext,
@@ -46,10 +62,11 @@ async function filterScopes(
   const userScopes = userPermissions.map(
     (permissionObj) => permissionObj.permission_name
   )
-  // basic OAuth 2.0 scopes
+
+  // basic OAuth 2.0 scopes that any client is allowed to request
   const defaultScopes = ['openid', 'profile', 'email', 'offline_access']
 
-  // scopes that the application has requested for the user
+  // scopes that the client application has requested on behalf of the user
   const requestedScopes = (
     context.request.body.scope ||
     context.request.query.scope ||
@@ -57,7 +74,9 @@ async function filterScopes(
   ).split(' ')
 
   // whitelist of scopes accessible to applications that aren't on the application whitelist
+  // (currently empty, but we may expand it in future...)
   const scopeWhitelist: string[] = []
+
   // get a list of the whitelisted scopes that the user has access to
   const allowedUserScopes = scopeWhitelist.filter((scope) =>
     userScopes.includes(scope)
@@ -68,12 +87,16 @@ async function filterScopes(
       [...defaultScopes, ...userScopes]
     : // application not on the whitelist, only scopes on the scope whitelist allowed
       [...defaultScopes, ...allowedUserScopes]
-  // final list of scopes to add to the access token
+
+  // final list of scopes to add to the access token, built by diffing
+  // the list of allowed scopes against the requested scopes
   const finalScopes = allowedScopes
     .filter((scope) => requestedScopes.includes(scope))
     .filter((a): a is string => !!a)
+
   // add scopes to the access token
   context.accessToken.scope = finalScopes
+
   // GTFO
   callback(null, user, context)
 }
