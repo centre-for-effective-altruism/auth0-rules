@@ -28,7 +28,7 @@ A utility for managing rule definitions on an Auth0 tenant.
 [CEA](https://www.centreforeffectivealtruism.org) uses
 [Auth0](https://auth0.com/) to provide authentication and authorization to a
 number of services (e.g. [EA Funds](https://funds.effectivealtruism.org),
-[Giving What We Can](https://www.givingwhatwecan.org)[], the
+[Giving What We Can](https://www.givingwhatwecan.org), the
 [EA Forum](https://forum.effectivealtruism.org) etc). When users log in, we run
 a number of
 [rules (part of Auth0's login pipeline)](https://auth0.com/docs/rules) that
