@@ -12,5 +12,6 @@ declare global {
     getData?: () => Record<string, unknown> | Promise<Record<string, unknown>>
   }
 
+  /** Allow TEMPLATE_DATA to be used as a global in rule definitions */
   const TEMPLATE_DATA: Record<string, any>
 }

@@ -4,25 +4,21 @@ A utility for managing rule definitions on an Auth0 tenant.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Contents
 
-- [Auth0 Rules](#auth0-rules)
-  - [Context](#context)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Commands](#commands)
-      - [`deploy`](#deploy)
-      - [`diff`](#diff)
-  - [Environment and Permissions](#environment-and-permissions)
-  - [Structure and compilation](#structure-and-compilation)
-  - [Defining Rules](#defining-rules)
-    - [Basic rule structure](#basic-rule-structure)
-    - [External dependencies](#external-dependencies)
-    - [The rule manifest](#the-rule-manifest)
-    - [Rule ordering](#rule-ordering)
-    - [Templating](#templating)
-      - [Templating helpers](#templating-helpers)
-      - [Templating example](#templating-example)
-  - [Automatic deploys (`TODO`)](#automatic-deploys-todo)
+- [Context](#context)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Commands](#commands)
+- [Environment and Permissions](#environment-and-permissions)
+- [Structure and compilation](#structure-and-compilation)
+- [Defining Rules](#defining-rules)
+  - [Basic rule structure](#basic-rule-structure)
+  - [External dependencies](#external-dependencies)
+  - [The rule manifest](#the-rule-manifest)
+  - [Rule ordering](#rule-ordering)
+  - [Templating](#templating)
+- [Automatic deploys (`TODO`)](#automatic-deploys-todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
