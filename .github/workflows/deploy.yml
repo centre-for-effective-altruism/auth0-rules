@@ -24,16 +24,16 @@ jobs:
           endsWith(github.ref, '/dev') || endsWith(github.ref,
           '/automatic-deploys')
         run: |
-          echo "AUTH0_DOMAIN=${{ secrets.STAGING__AUTH0_DOMAIN}} >> $GITHUB_ENV
-          echo "AUTH0_CLIENT_ID=${{ secrets.STAGING__AUTH0_CLIENT_ID}} >> $GITHUB_ENV
-          echo "AUTH0_CLIENT_SECRET=${{ secrets.STAGING__AUTH0_CLIENT_SECRET}} >> $GITHUB_ENV
+          echo "AUTH0_DOMAIN=${{ secrets.STAGING__AUTH0_DOMAIN}}" >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_ID=${{ secrets.STAGING__AUTH0_CLIENT_ID}}" >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_SECRET=${{ secrets.STAGING__AUTH0_CLIENT_SECRET}}" >> $GITHUB_ENV
 
       - name: Set environment vars (production)
         if: endsWith(github.ref, '/master')
         run: |
-          echo "AUTH0_DOMAIN=${{ secrets.PRODUCTION__AUTH0_DOMAIN}} >> $GITHUB_ENV
-          echo "AUTH0_CLIENT_ID=${{ secrets.PRODUCTION__AUTH0_CLIENT_ID}} >> $GITHUB_ENV
-          echo "AUTH0_CLIENT_SECRET=${{ secrets.PRODUCTION__AUTH0_CLIENT_SECRET}} >> $GITHUB_ENV
+          echo "AUTH0_DOMAIN=${{ secrets.PRODUCTION__AUTH0_DOMAIN}}" >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_ID=${{ secrets.PRODUCTION__AUTH0_CLIENT_ID}}" >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_SECRET=${{ secrets.PRODUCTION__AUTH0_CLIENT_SECRET}}" >> $GITHUB_ENV
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
