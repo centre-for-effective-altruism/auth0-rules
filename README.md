@@ -6,7 +6,7 @@ A utility for managing rule definitions on an Auth0 tenant.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 ## Contents
 
-- [Context](#context)
+- [Contextz](#contextz)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Commands](#commands)
@@ -22,7 +22,7 @@ A utility for managing rule definitions on an Auth0 tenant.
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Context
+## Contextz
 
 [CEA](https://www.centreforeffectivealtruism.org) uses
 [Auth0](https://auth0.com/) to provide authentication and authorization to a
