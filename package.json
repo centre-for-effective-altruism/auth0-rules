@@ -18,7 +18,11 @@
   },
   "lint-staged": {
     "README.md": [
-      "yarn toc"
+      "yarn toc",
+      "prettier --loglevel warn --write"
+    ],
+    "**/*.{ts,json}": [
+      "prettier --loglevel warn --write"
     ]
   },
   "dependencies": {
