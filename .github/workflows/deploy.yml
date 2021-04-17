@@ -18,6 +18,21 @@ jobs:
         with:
           node-version: 14
 
+      # See https://www.maxivanov.io/github-actions-deploy-to-multiple-environments-from-single-workflow/
+      - name: Set environment vars (staging)
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "AUTH0_DOMAIN=${{ secrets.STAGING__AUTH0_DOMAIN}} >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_ID=${{ secrets.STAGING__AUTH0_CLIENT_ID}} >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_SECRET=${{ secrets.STAGING__AUTH0_CLIENT_SECRET}} >> $GITHUB_ENV
+
+      - name: Set environment vars (production)
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "AUTH0_DOMAIN=${{ secrets.PRODUCTION__AUTH0_DOMAIN}} >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_ID=${{ secrets.PRODUCTION__AUTH0_CLIENT_ID}} >> $GITHUB_ENV
+          echo "AUTH0_CLIENT_SECRET=${{ secrets.PRODUCTION__AUTH0_CLIENT_SECRET}} >> $GITHUB_ENV
+
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -37,19 +52,7 @@ jobs:
       - name: Build CLI and rule definitions
         run: yarn build
 
-  deploy-staging:
-    name: Deploy to Staging
-    if: github.event.ref == 'refs/heads/automatic-deploys'
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    environment:
-      name: Staging
-    steps:
       - name: Deploy
         env:
-          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           TOKEN_NAMESPACE: ${{ secrets.TOKEN_NAMESPACE }}
         run: yarn rules deploy
