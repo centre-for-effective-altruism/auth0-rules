@@ -7,7 +7,7 @@ on:
       - automatic-deploys
 jobs:
   build:
-    name: Build
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,7 +20,9 @@ jobs:
 
       # See https://www.maxivanov.io/github-actions-deploy-to-multiple-environments-from-single-workflow/
       - name: Set environment vars (staging)
-        if: endsWith(github.ref, '/dev')
+        if:
+          endsWith(github.ref, '/dev') || endsWith(github.ref,
+          '/automatic-deploys')
         run: |
           echo "AUTH0_DOMAIN=${{ secrets.STAGING__AUTH0_DOMAIN}} >> $GITHUB_ENV
           echo "AUTH0_CLIENT_ID=${{ secrets.STAGING__AUTH0_CLIENT_ID}} >> $GITHUB_ENV
