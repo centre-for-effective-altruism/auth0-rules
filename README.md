@@ -184,8 +184,8 @@ can build both at once by running `yarn build` (which is an alias for
 `yarn build:cli && yarn build:rules`).
 
 You can run `yarn build:rules:watch` to have TypeScript automatically compile
-rules as you are developing them. If instead you are editing the CLI itself, you
-should run `yarn build:cli:watch`.
+rules as you are developing them. If instead you are editing the CLI itself
+(including the manifest file), you should run `yarn build:cli:watch`.
 
 ## Defining Rules
 
