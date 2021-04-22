@@ -1,0 +1,17 @@
+{
+  "experimentalBabelParserPluginsList": [
+    "jsx",
+    "typescript",
+    "classProperties"
+  ],
+  "importOrder": ["^[./]"],
+  "importOrderSeparation": true,
+  "jsdocParser": true,
+  "jsonRecursiveSort": true,
+  "proseWrap": "always",
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "tsdoc": true
+}
