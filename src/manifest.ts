@@ -44,7 +44,11 @@ const MANIFEST: RuleDefinition[] = [
     file: 'filter-scopes',
     enabled: true,
     getData: async () => {
-      const applicationNames = ['EA Funds', 'Giving What We Can']
+      const applicationNames = [
+        'EA Funds',
+        'Giving What We Can',
+        'Parfit Admin',
+      ]
       const Clients = await getAllClients()
       const whitelist = Clients.filter(isValidClient)
         .filter((Client) => applicationNames.includes(Client.name))
