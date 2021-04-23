@@ -1,6 +1,6 @@
-import { generateRuleScript, getAllRules } from '../lib/utils'
+import { generateRuleScript, getAllRules } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
-import MANIFEST from '../manifest'
+import MANIFEST from '../../manifest'
 import { Rule } from 'auth0'
 import { cyan, green, grey, magenta, red, redBright } from 'chalk'
 import { padEnd } from 'lodash'

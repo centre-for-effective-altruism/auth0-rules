@@ -1,13 +1,13 @@
 import { Rule } from 'auth0'
 import { red, blue, yellow, green } from 'chalk'
 import { padEnd, padStart, truncate } from 'lodash'
-import auth0 from '../lib/client'
+import auth0 from '../../lib/client'
 import {
   getAllRules,
   generateRuleScript,
   formatUpdateRuleMessage,
-} from '../lib/utils'
-import MANIFEST from '../manifest'
+} from '../../lib/utils'
+import MANIFEST from '../../manifest'
 
 function getLargestOrder(Rules: Rule[]): number {
   const ruleNames = MANIFEST.map((ruleDef) => ruleDef.name)

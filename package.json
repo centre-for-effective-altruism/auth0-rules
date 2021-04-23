@@ -7,12 +7,14 @@
   "author": "colophonemes <sam@centreforeffectivealtruism.org>",
   "main": "index.ts",
   "scripts": {
-    "build": "yarn build:cli && yarn build:rules",
+    "build": "yarn build:cli && yarn build:rules && yarn build:db",
     "build:cli": "yarn tsc",
     "build:cli:watch": "yarn tsc --watch",
     "build:rules": "yarn tsc -p rules/tsconfig.json",
     "build:rules:watch": "yarn build:rules --watch",
-    "rules": "node -r dotenv/config dist/index",
+    "build:db": "yarn tsc -p db/tsconfig.json",
+    "build:db:watch": "yarn build:db --watch",
+    "cli": "node -r dotenv/config dist/index",
     "toc": "doctoc --maxlevel 3 --title '## Contents' README.md",
     "prepare": "husky install"
   },
@@ -26,21 +28,23 @@
     ]
   },
   "dependencies": {
-    "@types/lodash": "^4.14.168",
-    "@types/pg": "^7.14.11",
     "auth0": "^2.34.1",
     "chalk": "^4.1.0",
     "diff": "^5.0.0",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.21",
-    "mz": "^2.7.0"
+    "mz": "^2.7.0",
+    "pg": "7.17.1"
   },
   "devDependencies": {
     "@tepez/auth0-rules-types": "^0.3.1",
     "@types/auth0": "^2.33.3",
+    "@types/bcrypt": "^3.0.1",
     "@types/diff": "^5.0.0",
+    "@types/lodash": "^4.14.168",
     "@types/mz": "^2.7.3",
     "@types/node": "^14.14.37",
+    "@types/pg": "^7.14.11",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
     "commander": "^7.2.0",

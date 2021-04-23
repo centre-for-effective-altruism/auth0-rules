@@ -1,15 +1,11 @@
+import path from 'path'
 import program from 'commander'
-import deploy from './commands/deploy'
-import diff from './commands/diff'
 
-program
-  .command('deploy')
-  .description('Deploy rules to the Auth0 tenant')
-  .action(deploy)
-
-program
-  .command('diff')
-  .description('Diff locally defined rules against those on the Auth0 tenant')
-  .action(diff)
+program.command('rules', 'manage Auth0 rules', {
+  executableFile: path.join(__dirname, 'commands/rules/index.js'),
+})
+program.command('db', 'manage database action scripts', {
+  executableFile: path.join(__dirname, 'commands/db/index.js'),
+})
 
 program.parse(process.argv)
