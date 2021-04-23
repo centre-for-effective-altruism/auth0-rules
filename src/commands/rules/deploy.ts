@@ -1,6 +1,5 @@
 import { Rule } from 'auth0'
 import { red, blue, yellow, green } from 'chalk'
-import { padEnd, padStart, truncate } from 'lodash'
 import auth0 from '../../lib/client'
 import {
   getAllRules,
