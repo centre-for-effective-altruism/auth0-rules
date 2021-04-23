@@ -1,4 +1,4 @@
-import { generateRuleScript, getAllRules } from '../../lib/utils'
+import { generateScript, getAllRules, printScriptDiff } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
 import MANIFEST from '../../manifest'
 import { Rule } from 'auth0'
@@ -20,44 +20,17 @@ export default async function run() {
   )
   const diffs: [RuleDefinition, Change[]][] = []
   const missingRules: RuleDefinition[] = []
-  const upToDateRules: RuleDefinition[] = []
   // generate the diffs
   for (const [ruleDef, Rule] of matches) {
     if (!Rule?.script) {
       missingRules.push(ruleDef)
       continue
     }
-    const script = await generateRuleScript(ruleDef)
+    const script = await generateScript(ruleDef)
     diffs.push([ruleDef, diffLines(Rule.script, script)])
   }
   // print the diffs
-  let changesHeaderPrinted = false
-  for (const [ruleDef, changes] of diffs) {
-    if (changes.every((part) => !part.added || part.removed)) {
-      upToDateRules.push(ruleDef)
-      continue
-    }
-    if (!changesHeaderPrinted) {
-      console.log(`[[ Changed rules ]]`)
-      changesHeaderPrinted = true
-    }
-    const lineDelimiter = padEnd('-', ruleDef.name.length + 3, '-')
-    console.log(`- ${cyan(ruleDef.name)}:`)
-    console.log(lineDelimiter)
-    const firstCharRE = /^(.|\n)/gm
-    for (const part of changes) {
-      // add a space character to the beginning of unchanged lines to preserve
-      // alignment when we add +/- chars
-      const output = part.added
-        ? green(part.value.replace(firstCharRE, '+$1'))
-        : part.removed
-        ? redBright(part.value.replace(firstCharRE, '-$1'))
-        : grey(part.value.replace(firstCharRE, ' $1'))
-      // we're writing character by character, so we do this by piping to
-      // STDOUT directly rather than using console.log
-      process.stderr.write(output)
-    }
-  }
+  const upToDateRules = printScriptDiff(diffs)
   if (upToDateRules.length) {
     console.log(`\n[[ Up-to-date rules ]]`)
     console.log(

@@ -4,7 +4,7 @@ import { padEnd, padStart, truncate } from 'lodash'
 import auth0 from '../../lib/client'
 import {
   getAllRules,
-  generateRuleScript,
+  generateScript,
   formatUpdateRuleMessage,
 } from '../../lib/utils'
 import MANIFEST from '../../manifest'
@@ -39,7 +39,7 @@ export default async function run() {
     let order = getLargestOrder(Rules)
     for (const ruleDef of MANIFEST) {
       // generate the final script
-      const script = await generateRuleScript(ruleDef)
+      const script = await generateScript(ruleDef)
       // check if the rule exists
       const existingRule = Rules.find((Rule) => Rule.name === ruleDef.name)
       if (existingRule?.id) {

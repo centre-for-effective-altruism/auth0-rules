@@ -134,6 +134,8 @@ The output will look something like:
 
 ## Environment and Permissions
 
+<!-- TODO; -->
+
 You'll need to ensure that the Auth0 tenant has a client application set up to
 work with the CLI. The application should be a **Machine-to-Machine**
 application, and needs the following permissions on the `Auth0 Management API`.
@@ -143,6 +145,8 @@ application, and needs the following permissions on the `Auth0 Management API`.
 - `create:rules`
 - `read:rules`
 - `update:rules`
+- `read:connections`
+- `update:connections`
 
 **Permissions used by specific rule generators**
 
