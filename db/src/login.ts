@@ -1,18 +1,12 @@
-import { User } from 'auth0'
 import { Client, ConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
 
-type PersonResult = {
-  id: string
-  email: string
-  first_name: string
-  last_name: string
-  password: string
-}
-type LoginCallback = (error: Error | null, person?: User) => any
-
 /** Authenticates a user against the Parfit postgres database */
-async function login(email: string, password: string, callback: LoginCallback) {
+async function login(
+  email: string,
+  password: string,
+  callback: DbScriptCallback
+) {
   try {
     /** Get required dependencies */
     const bcrypt = require('bcrypt@5.0.1') as { compare: typeof compare }
@@ -24,7 +18,10 @@ async function login(email: string, password: string, callback: LoginCallback) {
       password: configuration.POSTGRES_PASSWORD,
       host: configuration.POSTGRES_HOST,
       database: configuration.POSTGRES_DATABASE,
-      ssl: true,
+      port: configuration.POSTGRES_PORT
+        ? parseInt(configuration.POSTGRES_PORT)
+        : 5432,
+      ssl: TEMPLATE_DATA.ssl,
     }
 
     /** Construct a postgres client and connect to the server */
@@ -56,6 +53,7 @@ async function login(email: string, password: string, callback: LoginCallback) {
 
     /** Return the valid user back to Auth0 */
     return callback(null, {
+      id: Person.id,
       given_name: Person.first_name,
       family_name: Person.last_name,
       email: Person.email,

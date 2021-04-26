@@ -20,8 +20,8 @@ export default async function run() {
   const diffs: [DBActionScriptDefinition, Change[]][] = []
   for (const scriptDef of MANIFEST) {
     const our_script = await generateScript(scriptDef, 'db')
-    console.log('🚀 ~ file: diff.ts ~ line 23 ~ run ~ our_script', our_script)
-    const existing_script = dbConnection.options.customScripts[scriptDef.name]
+    // console.log('🚀 ~ file: diff.ts ~ line 23 ~ run ~ our_script', our_script)
+    const existing_script = dbConnection.options.customScripts?.[scriptDef.name]
     if (!existing_script) {
       throw new Error(
         [

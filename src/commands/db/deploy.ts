@@ -4,9 +4,10 @@ import { generateScript, getAllConnections } from '../../lib/utils'
 import MANIFEST from '../../db-manifest'
 import { CONNECTION_NAME } from '../../lib/db-utils'
 
+// TODO; tsconfig makes "use strict", which auth0 doesn't like
+
 export default async function run() {
   try {
-    // get all rules currently defined on the Auth0 tenant
     const connections = await getAllConnections()
     const dbConnection = connections.find(
       (conn) => conn.name === CONNECTION_NAME
@@ -20,6 +21,7 @@ export default async function run() {
     }
     const options = dbConnection.options
     // console.log('🚀 ~ file: deploy.ts ~ line 18 ~ run ~ options', options)
+    // TODO; will error handling go bad?
     const ourCustomScripts = Object.fromEntries(
       await Promise.all(
         MANIFEST.map(async (scriptDef) => [

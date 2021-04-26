@@ -191,6 +191,8 @@ You can run `yarn build:rules:watch` to have TypeScript automatically compile
 rules as you are developing them. If instead you are editing the CLI itself
 (including the manifest file), you should run `yarn build:cli:watch`.
 
+If you're everything, just buildwatch everything (TODO;)
+
 ## Defining Rules
 
 There are two steps to writing an Auth0 rule:
