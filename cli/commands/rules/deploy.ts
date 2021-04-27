@@ -6,7 +6,7 @@ import {
   generateScript,
   formatUpdateRuleMessage,
 } from '../../lib/utils'
-import { RULE_MANIFEST } from '../../manifest'
+import { RULE_MANIFEST } from '../../manifests'
 
 function getLargestOrder(Rules: Rule[]): number {
   const ruleNames = RULE_MANIFEST.map((ruleDef) => ruleDef.name)

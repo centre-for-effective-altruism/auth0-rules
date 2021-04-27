@@ -1,7 +1,7 @@
 import { red, green } from 'chalk'
 import auth0 from '../../lib/client'
 import { generateScript, getAllConnections } from '../../lib/utils'
-import { DB_MANIFEST } from '../../manifest'
+import { DB_MANIFEST } from '../../manifests'
 import { CONNECTION_NAME } from '../../lib/db-utils'
 
 export default async function run() {

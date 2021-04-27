@@ -18,7 +18,7 @@ A utility for managing rule and db script definitions on an Auth0 tenant.
 - [Defining Scripts](#defining-scripts)
   - [Basic rule structure](#basic-rule-structure)
   - [External dependencies](#external-dependencies)
-  - [The rule manifest](#the-rule-manifest)
+  - [Manifests](#manifests)
   - [Rule ordering](#rule-ordering)
   - [Templating](#templating)
 - [Automatic deploys (`TODO`)](#automatic-deploys-todo)
@@ -225,12 +225,12 @@ There are two steps to writing an Auth0 script:
 
 -<!-- TODO; Imma stop here --->
 
-Defining the script itself (as a file in e.g. `./rules/src`)
+Defining the script itself (as a file in e.g. `./scripts/rules/src`)
 
-- [Registering the script in the manifest](#the-manifest) (`./src/manifest`)
+- [Registering the script in the manifest](#the-manifest) (`./src/manifests`)
 
-Rules are defined in the `./rules/src` directory. Each rule lives in its own
-file. Rules are written as Typescript files (`.ts` extension).
+Scripts are defined in `./scripts/rules/src`. Each script lives in its own file.
+They are written as Typescript files (`.ts` extension).
 
 ### Basic rule structure
 
@@ -318,13 +318,13 @@ For a full list of modules that can be dynamically required, see the
 Further discussion about using modules can be found
 [in the Auth0 docs](https://auth0.com/docs/best-practices/rules-best-practices/rules-environment-best-practices).
 
-### The rule manifest
+### Manifests
 
-The rule manifest declares the rules that will be deployed to Auth0. The
-manifest is the default export of `./src/manifest.ts`.
+A manifest declares the scripts that will be deployed to Auth0. They are found
+in `./src/manifest.ts`.
 
-The manifest exports an array of `RuleDefinitions`, which are objects with the
-following properties:
+A Rule manifest consists of an array of `RuleDefinitions`, which are objects
+with the following properties:
 
 - `name` (string): The name of the rule that will appear in the Auth0 UI. This
   is used to match against existing rules on Auth0 for the purpose of diffing
@@ -354,9 +354,9 @@ Sometimes, we need to inject variables that will be different on each Auth0
 tenant. For example, maybe you only want a rule to apply to certain
 applications, so you want to use a list of these application IDs into your
 function – obviously these IDs will be different on different tenants. Instead
-of hard-coding these values into the rule code, you can instead inject a
+of hard-coding these values into the script code, you can instead inject a
 `TEMPLATE_DATA` global, that will be populated by data from the `getData()`
-function in the rule manifest.
+function in the script manifest.
 
 The `TEMPLATE_DATA` variable is declared as a TypeScript global with type
 `Record<string, any>`, so rule file will compile happily. It's a good idea to
@@ -369,7 +369,7 @@ function myGreatFunction() {
 }
 ```
 
-When rules are compiled, any rule that has a `getData()` property on its
+When scripts are compiled, any rule that has a `getData()` property on its
 manifest will inject a `TEMPLATE_DATA` variable into the top of the function
 declaration:
 

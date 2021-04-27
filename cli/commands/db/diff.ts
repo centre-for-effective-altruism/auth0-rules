@@ -1,5 +1,5 @@
 import { Change, diffLines } from 'diff'
-import { DB_MANIFEST } from '../../manifest'
+import { DB_MANIFEST } from '../../manifests'
 import { CONNECTION_NAME } from '../../lib/db-utils'
 import {
   generateScript,

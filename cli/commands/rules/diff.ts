@@ -1,6 +1,6 @@
 import { generateScript, getAllRules, printScriptDiff } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
-import { RULE_MANIFEST } from '../../manifest'
+import { RULE_MANIFEST } from '../../manifests'
 import { Rule } from 'auth0'
 import { cyan, green, grey, magenta, red } from 'chalk'
 
