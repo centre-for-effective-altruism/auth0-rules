@@ -1,14 +1,19 @@
 const { NODE_ENV } = process.env
 
-// TODO;
-// Only two of these allowed
+// TODO; only one manifest
+
+/**
+ * List of Database Action Scripts to Deploy.
+ *
+ * Should contain `login`, `get_user`, and nothing else.
+ */
 const MANIFEST: DBActionScriptDefinition[] = [
   {
     name: 'login',
     file: 'login',
     getData: async () => {
       return {
-        ssl: NODE_ENV !== 'development',
+        pgShouldSsl: NODE_ENV !== 'development',
       }
     },
   },
@@ -17,7 +22,7 @@ const MANIFEST: DBActionScriptDefinition[] = [
     file: 'get-user',
     getData: async () => {
       return {
-        ssl: NODE_ENV !== 'development',
+        pgShouldSsl: NODE_ENV !== 'development',
       }
     },
   },

@@ -1,8 +1,7 @@
 import { User } from 'auth0'
 
-// TODO; why so much stuff in globals
 declare global {
-  // TODO; doc
+  /** Parfit DB Person */
   type PersonResult = {
     id: string
     email: string
@@ -11,12 +10,16 @@ declare global {
     password: string
   }
 
+  /** Shape of user object that Database Action Scripts expect to be returned */
   interface CallbackUser extends User {
-    // TODO; This appears to be necessary
+    /**
+     * This appears to be necessary, despite no documentation I could find in a
+     * cursory inspection
+     */
     id: string
   }
-  type DbScriptCallback = (error: Error | null, person?: CallbackUser) => any
-  // TODO; can we have a local .env file that we push to Auth0
+  /** Signature of Database Action Script callback */
+  type DbScriptCallback = (error: Error | null, person?: CallbackUser) => void
   /** Configured in Auth0 UI */
   const configuration: {
     POSTGRES_USERNAME: string
@@ -27,8 +30,9 @@ declare global {
   }
   /** Global error class */
   class WrongUsernameOrPasswordError extends Error {}
+  /** Return this in `login` if user authentication fails. Auth0 provides this as a global. */
   const WrongUsernameOrPasswordError: WrongUsernameOrPasswordError
-  // TODO;
+  /** We inject this into the top of functions, so it will be present */
   const TEMPLATE_DATA: Record<string, any>
 }
 

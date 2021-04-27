@@ -1,6 +1,8 @@
 import { Client, ConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
 
+// TODO; move to only two different builds
+
 /** Authenticates a user against the Parfit postgres database */
 async function login(
   email: string,
@@ -21,7 +23,7 @@ async function login(
       port: configuration.POSTGRES_PORT
         ? parseInt(configuration.POSTGRES_PORT)
         : 5432,
-      ssl: TEMPLATE_DATA.ssl,
+      ssl: TEMPLATE_DATA.pgShouldSsl,
     }
 
     /** Construct a postgres client and connect to the server */

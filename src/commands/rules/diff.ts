@@ -2,8 +2,7 @@ import { generateScript, getAllRules, printScriptDiff } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
 import MANIFEST from '../../manifest'
 import { Rule } from 'auth0'
-import { cyan, green, grey, magenta, red, redBright } from 'chalk'
-import { padEnd } from 'lodash'
+import { cyan, green, grey, magenta, red } from 'chalk'
 
 type DiffPair = [RuleDefinition, Rule | undefined]
 

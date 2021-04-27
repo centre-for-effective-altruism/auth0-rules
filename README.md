@@ -1,6 +1,6 @@
 # Auth0 Rules
 
-A utility for managing rule definitions on an Auth0 tenant.
+A utility for managing rule and db script definitions on an Auth0 tenant.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -8,12 +8,14 @@ A utility for managing rule definitions on an Auth0 tenant.
 ## Contents
 
 - [Context](#context)
+  - [Context on Rules](#context-on-rules)
+  - [Context on Database Action Scripts](#context-on-database-action-scripts)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Commands](#commands)
 - [Environment and Permissions](#environment-and-permissions)
 - [Structure and compilation](#structure-and-compilation)
-- [Defining Rules](#defining-rules)
+- [Defining Scripts](#defining-scripts)
   - [Basic rule structure](#basic-rule-structure)
   - [External dependencies](#external-dependencies)
   - [The rule manifest](#the-rule-manifest)
@@ -29,8 +31,23 @@ A utility for managing rule definitions on an Auth0 tenant.
 [Auth0](https://auth0.com/) to provide authentication and authorization to a
 number of services (e.g. [EA Funds](https://funds.effectivealtruism.org),
 [Giving What We Can](https://www.givingwhatwecan.org), the
-[EA Forum](https://forum.effectivealtruism.org) etc). When users log in, we run
-a number of
+[EA Forum](https://forum.effectivealtruism.org) etc).
+
+Auth0 provides a number of places where they call our code and allow us to
+perform custom modifications to their default behavior, such as
+[Rules](#context-on-rules), and
+[Database Action Scripts](#context-on-database-action-scripts) below.
+
+The default method of creating and editing these scripts is to use Auth0's
+web-based UI. This makes it difficult to version them, and to ensure that they
+are kept in sync between production, staging, and local Auth0 tenants.
+
+This repo allows us to write our scripts in an IDE, using TypeScript, and then
+automatically deploy them. 😎
+
+### Context on Rules
+
+When users log in, we run a number of
 [rules (part of Auth0's login pipeline)](https://auth0.com/docs/rules) that
 affect the final login state (e.g. what data is present in the user's access
 token or ID token, which permissions they are allowed to request etc.). From
@@ -42,12 +59,23 @@ token or ID token, which permissions they are allowed to request etc.). From
 > your Rules code executes isolated from the code of other Auth0 tenants in a
 > sandbox.
 
-The default method of creating and editing rules is to use Auth0's web-based UI.
-This makes it difficult to version rules, and to ensure that rules are kept in
-sync between production, staging, and local Auth0 tenants.
+### Context on Database Action Scripts
 
-This repo allows us to write our rules in an IDE, using TypeScript, and then
-deploy them to an Auth0 tenant with a single command.
+So long as not all of our users have logged in since we started using Auth0, we
+will still need to be able to authenticate them from our local databases. We
+_can't_ do this just by sending Auth0 everyone's passwords, because we don't
+store passwords, we store hashes of passwords.
+
+Example: Torble Dorp has an account on EA Funds, from 2019. He then clicks login
+on the modern site, and enters his username and password into Auth0's UI. Auth0
+first checks for Torble Dorp in its own database. No Torble Dorp there. So then
+Auth0 calls out to our script. "Do these credentials log someone in?", it asks?
+Yes. Auth0 now takes over management of Torble Dorp's account.
+
+We write two scripts for this to happen: Login, and Get User. Get User is used
+in password resets, and just takes an email as an argument. The scripts are
+managed separately from Rules, but otherwise follow a lot of the same, uh,
+rules.
 
 ## Installation
 
@@ -59,10 +87,10 @@ deploy them to an Auth0 tenant with a single command.
 
 ## Usage
 
-Run the scripts with `yarn rules`
+Run the scripts with `yarn cli [rules|db]`
 
 ```
-Usage: rules [options] [command]
+Usage: yarn cli rules [options] [command]
 
 Options:
   -h, --help      display help for command
@@ -79,21 +107,23 @@ Commands:
 #### `deploy`
 
 ```sh
-yarn rules deploy
+yarn [rules|db] deploy
 ```
 
-Deploys all rules in the manifest to Auth0. Rules that don't match with those
-that are already on the Auth0 tenant will be created, those that do will be
-updated. Rules that are defined on Auth0 but that aren't in the manifest will be
-left alone, and will run before all rules that are in the manifest.
+Deploys all scripts in the manifest to Auth0.
+
+Rules that don't match with those that are already on the Auth0 tenant will be
+created, those that do will be updated. Rules that are defined on Auth0 but that
+aren't in the manifest will be left alone, and will run before all rules that
+are in the manifest.
 
 #### `diff`
 
 ```
-yarn rules diff
+yarn [rules|db] diff
 ```
 
-Diffs locally defined rules against those defined on the Auth0 tenant.
+Diffs locally defined scripts against those defined on the Auth0 tenant.
 
 The output will look something like:
 
@@ -134,8 +164,6 @@ The output will look something like:
 
 ## Environment and Permissions
 
-<!-- TODO; -->
-
 You'll need to ensure that the Auth0 tenant has a client application set up to
 work with the CLI. The application should be a **Machine-to-Machine**
 application, and needs the following permissions on the `Auth0 Management API`.
@@ -168,11 +196,14 @@ AUTH0_CLIENT_SECRET=<client secret for the Rules Management client application>
 
 ## Structure and compilation
 
-This repo consists of two main folders:
+This repo consists of three main folders:
 
-- `./rules` – contains the actual rule definitions that will run on Auth0
-- `./src` – contains the scripts that run the CLI, and the manifest file that
-  tells these scripts which rules to deploy to Auth0.
+<!-- TODO; --->
+
+- `./rules` and `./db` – contain the actual script definitions that will run on
+  Auth0
+- `./src` – contains the the CLI, and the manifest file that tells it which
+  scripts to deploy to Auth0.
 
 These folders are independent TypeScript projects, due to them each requiring
 different compilation options.
@@ -183,9 +214,11 @@ different compilation options.
 - The CLI scripts are compiled to `ES5` Javascript, for easier consumption by
   Node.js, as Node doesn't currently support ESModules syntax (e.g. `import`).
 
-Both the CLI and the rule definitions are compiled to the `./dist` folder. You
+Both the CLI and the script definitions are compiled to the `./dist` folder. You
 can build both at once by running `yarn build` (which is an alias for
 `yarn build:cli && yarn build:rules`).
+
+<!-- TODO; --->
 
 You can run `yarn build:rules:watch` to have TypeScript automatically compile
 rules as you are developing them. If instead you are editing the CLI itself
@@ -193,12 +226,13 @@ rules as you are developing them. If instead you are editing the CLI itself
 
 If you're everything, just buildwatch everything (TODO;)
 
-## Defining Rules
+## Defining Scripts
 
-There are two steps to writing an Auth0 rule:
+There are two steps to writing an Auth0 script:
 
-- Defining the rule itself (as a file in `./rules/src`)
-- [Registering the rule in the manifest](#the-rule-manifest) (`./src/manifest`)
+- Defining the script itself (as a file in e.g. `./rules/src`)
+<!-- TODO; Imma stop here --->
+- [Registering the script in the manifest](#the-manifest) (`./src/manifest`)
 
 Rules are defined in the `./rules/src` directory. Each rule lives in its own
 file. Rules are written as Typescript files (`.ts` extension).

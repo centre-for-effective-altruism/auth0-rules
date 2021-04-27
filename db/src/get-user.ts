@@ -1,6 +1,14 @@
 import { Client, ConnectionConfig } from 'pg'
 
+// TODO: This is pretty copy-pasta-y from login. We should fix this by building
+// good code-sharing functionality into this repo. But notice that we can't just
+// naively import and run a function. So we'll need to write code that takes
+// function definitions and inserts them into the top of the function. It is my
+// (JP's) opinion that we should wait until there's one more instance of code
+// re-use before making that refactor.
+
 async function getByEmail(email: string, callback: DbScriptCallback) {
+  // Auth0 comment:
   // This script should retrieve a user profile from your existing database,
   // without authenticating the user.
   // It is used to check if a user exists before executing flows that do not
@@ -15,7 +23,6 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
   // 3. Something went wrong while trying to reach your database:
   //     callback(new Error("my error message"));
   try {
-    // TODO; this is hella copy-pasta-y, but not sure how to fix
     /** Get required dependency */
     const { Client } = require('pg@7.17.1')
 
@@ -28,7 +35,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       port: configuration.POSTGRES_PORT
         ? parseInt(configuration.POSTGRES_PORT)
         : 5432,
-      ssl: TEMPLATE_DATA.ssl,
+      ssl: TEMPLATE_DATA.pgShouldSsl,
     }
 
     /** Construct a postgres client and connect to the server */
