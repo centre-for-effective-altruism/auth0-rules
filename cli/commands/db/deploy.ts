@@ -1,7 +1,7 @@
 import { red, green } from 'chalk'
 import auth0 from '../../lib/client'
 import { generateScript, getAllConnections } from '../../lib/utils'
-import MANIFEST from '../../db-manifest'
+import { DB_MANIFEST } from '../../manifest'
 import { CONNECTION_NAME } from '../../lib/db-utils'
 
 export default async function run() {
@@ -20,7 +20,7 @@ export default async function run() {
     const options = dbConnection.options
     const ourCustomScripts = Object.fromEntries(
       await Promise.all(
-        MANIFEST.map(async (scriptDef) => [
+        DB_MANIFEST.map(async (scriptDef) => [
           scriptDef.name,
           await generateScript(scriptDef, 'db'),
         ])

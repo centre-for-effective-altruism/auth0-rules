@@ -1,6 +1,6 @@
 import { generateScript, getAllRules, printScriptDiff } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
-import MANIFEST from '../../manifest'
+import { RULE_MANIFEST } from '../../manifest'
 import { Rule } from 'auth0'
 import { cyan, green, grey, magenta, red } from 'chalk'
 
@@ -9,13 +9,13 @@ type DiffPair = [RuleDefinition, Rule | undefined]
 export default async function run() {
   const Rules = await getAllRules()
   // Match rules in the manifest to existing Auth0 rules
-  const matches: DiffPair[] = MANIFEST.map((ruleDef) => [
+  const matches: DiffPair[] = RULE_MANIFEST.map((ruleDef) => [
     ruleDef,
     Rules.find((Rule) => ruleDef.name === Rule.name),
   ])
   // Rules that exist on Auth0 but are not defined in the manifest
   const extras: Rule[] = Rules.filter((Rule) =>
-    MANIFEST.every((ruleDef) => ruleDef.name !== Rule.name)
+    RULE_MANIFEST.every((ruleDef) => ruleDef.name !== Rule.name)
   )
   const diffs: [RuleDefinition, Change[]][] = []
   const missingRules: RuleDefinition[] = []
@@ -35,7 +35,7 @@ export default async function run() {
     console.log(
       grey(
         `${
-          upToDateRules.length === MANIFEST.length
+          upToDateRules.length === RULE_MANIFEST.length
             ? 'All'
             : upToDateRules.length
         } rules defined in the manifest are identical to those that exist on the Auth0 tenant:`

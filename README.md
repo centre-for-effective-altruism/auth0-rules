@@ -87,7 +87,7 @@ rules.
 
 ## Usage
 
-Run the scripts with `yarn cli [rules|db]`
+Sync with Auth0 using `yarn cli [rules|db]`
 
 ```
 Usage: yarn cli rules [options] [command]
@@ -196,12 +196,9 @@ AUTH0_CLIENT_SECRET=<client secret for the Rules Management client application>
 
 ## Structure and compilation
 
-This repo consists of three main folders:
+This repo consists of two main folders:
 
-<!-- TODO; --->
-
-- `./rules` and `./db` – contain the actual script definitions that will run on
-  Auth0
+- `./scripts` – contain the actual script definitions that will run on Auth0
 - `./src` – contains the the CLI, and the manifest file that tells it which
   scripts to deploy to Auth0.
 
@@ -216,22 +213,20 @@ different compilation options.
 
 Both the CLI and the script definitions are compiled to the `./dist` folder. You
 can build both at once by running `yarn build` (which is an alias for
-`yarn build:cli && yarn build:rules`).
+`yarn build:cli && yarn build:scripts`).
 
-<!-- TODO; --->
-
-You can run `yarn build:rules:watch` to have TypeScript automatically compile
-rules as you are developing them. If instead you are editing the CLI itself
-(including the manifest file), you should run `yarn build:cli:watch`.
-
-If you're everything, just buildwatch everything (TODO;)
+You can run `yarn build:scripts:watch` to have TypeScript automatically compile
+rules as you are developing them. If you need to edit the CLI itself (including
+the manifest file), you should also run `yarn build:cli:watch`.
 
 ## Defining Scripts
 
 There are two steps to writing an Auth0 script:
 
-- Defining the script itself (as a file in e.g. `./rules/src`)
-<!-- TODO; Imma stop here --->
+-<!-- TODO; Imma stop here --->
+
+Defining the script itself (as a file in e.g. `./rules/src`)
+
 - [Registering the script in the manifest](#the-manifest) (`./src/manifest`)
 
 Rules are defined in the `./rules/src` directory. Each rule lives in its own

@@ -6,10 +6,10 @@ import {
   generateScript,
   formatUpdateRuleMessage,
 } from '../../lib/utils'
-import MANIFEST from '../../manifest'
+import { RULE_MANIFEST } from '../../manifest'
 
 function getLargestOrder(Rules: Rule[]): number {
-  const ruleNames = MANIFEST.map((ruleDef) => ruleDef.name)
+  const ruleNames = RULE_MANIFEST.map((ruleDef) => ruleDef.name)
   const highestOrder = Rules.filter(
     (Rule) => Rule.name && !ruleNames.includes(Rule.name)
   ).reduce((prev, Rule) => {
@@ -36,7 +36,7 @@ export default async function run() {
     const Rules = await getAllRules()
     // Get the order of the last rule
     let order = getLargestOrder(Rules)
-    for (const ruleDef of MANIFEST) {
+    for (const ruleDef of RULE_MANIFEST) {
       // generate the final script
       const script = await generateScript(ruleDef)
       // check if the rule exists
