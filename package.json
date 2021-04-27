@@ -10,10 +10,8 @@
     "build": "yarn build:cli && yarn build:rules && yarn build:db",
     "build:cli": "yarn tsc",
     "build:cli:watch": "yarn tsc --watch",
-    "build:rules": "yarn tsc -p rules/tsconfig.json",
-    "build:rules:watch": "yarn build:rules --watch",
-    "build:db": "yarn tsc -p db/tsconfig.json",
-    "build:db:watch": "yarn build:db --watch",
+    "build:scripts": "yarn tsc -p scripts/tsconfig.json",
+    "build:scripts:watch": "yarn build:scripts --watch",
     "cli": "node -r dotenv/config dist/index",
     "toc": "doctoc --maxlevel 3 --title '## Contents' README.md",
     "prepare": "husky install"

@@ -16,5 +16,5 @@
     "types": ["node"]
   },
   "exclude": ["node_modules", "**/*.spec.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["cli/**/*.ts"]
 }

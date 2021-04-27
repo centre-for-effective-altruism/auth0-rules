@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "isolatedModules": false,
-    "outDir": "../dist/rules",
+    "outDir": "../dist/",
     "rootDir": "./",
     "target": "ES2020"
   },
