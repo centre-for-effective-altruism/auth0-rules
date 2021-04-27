@@ -7,7 +7,7 @@
   "author": "colophonemes <sam@centreforeffectivealtruism.org>",
   "main": "index.ts",
   "scripts": {
-    "build": "yarn build:cli && yarn build:rules && yarn build:db",
+    "build": "yarn build:cli && yarn build:scripts",
     "build:cli": "yarn tsc",
     "build:cli:watch": "yarn tsc --watch",
     "build:scripts": "yarn tsc -p scripts/tsconfig.json",

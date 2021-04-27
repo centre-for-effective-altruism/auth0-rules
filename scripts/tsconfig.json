@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "isolatedModules": false,
-    "outDir": "../dist/",
+    "outDir": "../dist/scripts",
     "rootDir": "./",
     "target": "ES2020"
   },

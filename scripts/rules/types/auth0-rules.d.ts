@@ -8,10 +8,3 @@ declare global {
     }
   }
 }
-
-declare global {
-  interface IAuth0RuleConfiguration {
-    AUTH0_CLIENT_ID: string
-    AUTH0_CLIENT_SECRET: string
-  }
-}
