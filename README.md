@@ -485,7 +485,6 @@ function addScopesToIdToken(user, context, callback) {
 }
 ```
 
-## Automatic deploys (`TODO`)
+## Automatic deploys 
 
-_Coming soon: GitHub actions to auto-deploy these rules to the relevant Auth0
-tenant when merging to `master` or `staging`_
+We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant when merging to `master` or `dev`.
