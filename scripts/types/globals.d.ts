@@ -12,6 +12,8 @@ declare global {
     POSTGRES_PORT?: string
     AUTH0_CLIENT_ID: string
     AUTH0_CLIENT_SECRET: string
+    MONGO_URI: string
+    MONGO_DB_NAME: string
   }
 
   // --- DB Globals ---
@@ -23,6 +25,11 @@ declare global {
     last_name: string
     password: string
   }
+  type ForumUser = {
+    _id: string
+    email: string
+    displayName: string
+  }
 
   /** Shape of user object that Database Action Scripts expect to be returned */
   interface CallbackUser extends User {
@@ -33,7 +40,7 @@ declare global {
     id: string
   }
   /** Signature of Database Action Script callback */
-  type DbScriptCallback = (error: Error | null, person?: CallbackUser) => void
+  type DbScriptCallback = (error: Error | null, person?: CallbackUser) => any
   /** Global error class */
   class WrongUsernameOrPasswordError extends Error {}
   /** Return this in `login` if user authentication fails. Auth0 provides this as a global. */
