@@ -37,7 +37,7 @@ async function login(
       POSTGRES_HOST,
       POSTGRES_DATABASE,
       POSTGRES_PORT,
-    } = configuration as DbConfiguration
+    } = (configuration as unknown) as DbConfiguration
 
     /** Declare connection info */
     const connectionInfo: ConnectionConfig = {

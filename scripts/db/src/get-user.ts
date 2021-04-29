@@ -1,5 +1,5 @@
 import { Client, ConnectionConfig } from 'pg'
-import { DbScriptCallback } from '../types/db-types'
+import { DbConfiguration, DbScriptCallback } from '../types/db-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just
@@ -39,15 +39,26 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
     /** Get required dependency */
     const { Client } = require('pg@7.17.1')
 
+    /**
+     * `configuration` is declared a global by @typez/auth0-rules-types, and
+     * there's no way to undo that. We must resort to a hack here to inform
+     * typescript of the actual shape of `configuration`
+     */
+    const {
+      POSTGRES_USERNAME,
+      POSTGRES_PASSWORD,
+      POSTGRES_HOST,
+      POSTGRES_DATABASE,
+      POSTGRES_PORT,
+    } = (configuration as unknown) as DbConfiguration
+
     /** Declare connection info */
     const connectionInfo: ConnectionConfig = {
-      user: configuration.POSTGRES_USERNAME,
-      password: configuration.POSTGRES_PASSWORD,
-      host: configuration.POSTGRES_HOST,
-      database: configuration.POSTGRES_DATABASE,
-      port: configuration.POSTGRES_PORT
-        ? parseInt(configuration.POSTGRES_PORT)
-        : 5432,
+      user: POSTGRES_USERNAME,
+      password: POSTGRES_PASSWORD,
+      host: POSTGRES_HOST,
+      database: POSTGRES_DATABASE,
+      port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
       ssl: TEMPLATE_DATA.pgShouldSsl,
     }
 
