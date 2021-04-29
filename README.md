@@ -23,7 +23,7 @@ A utility for managing rule and db script definitions on an Auth0 tenant.
   - [Templating](#templating)
 - [Running Database Action Scripts against a local dev environment](#running-database-action-scripts-against-a-local-dev-environment)
   - [A note on the development connection name](#a-note-on-the-development-connection-name)
-- [Automatic deploys (`TODO`)](#automatic-deploys-todo)
+- [Automatic deploys](#automatic-deploys)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -561,7 +561,7 @@ To use this connection in your application, you'll need to update your
 application in the Auth0 UI, where you can select which connection it uses for
 username and password authentication.
 
-## Automatic deploys (`TODO`)
+## Automatic deploys
 
-_Coming soon: GitHub actions to auto-deploy these rules to the relevant Auth0
-tenant when merging to `master` or `staging`_
+We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant
+when merging to `master` or `dev`.
