@@ -20,31 +20,28 @@ async function login(
     const { Client: PGClient } = require('pg@7.17.1')
     const { MongoClient } = require('mongodb@3.1.4')
 
+    /**
+     * Login in this function tries to match:
+     * EAForum/packages/lesswrong/server/vulcan-lib/apollo-server/authentication.tsx
+     */
     async function loginForumUser(): Promise<CallbackUser | null> {
       // Connect to the Forum DB
       const mongoClient: MongoClient = new MongoClient(configuration.MONGO_URI)
       await mongoClient.connect()
 
       // Query the users collection for someone with our email
-      // Only the toArray is asynchronous
-      const forumResult = await mongoClient
+      const forumUser = await mongoClient
         .db(configuration.MONGO_DB_NAME)
         .collection<ForumUser>('users')
-        .find({ email })
-        .toArray()
+        .findOne({ 'emails.address': email })
 
       await mongoClient.close()
 
-      if (forumResult.length === 0) {
+      if (!forumUser) {
         return null
       }
 
-      // TODO; which one?
-      // This question is hard
-      const forumUser = forumResult[0]
-
-      // Check their password - taken from:
-      // EAForum/packages/lesswrong/server/vulcan-lib/apollo-server/authentication.tsx
+      // Check their password
       // Meteor hashed its passwords twice, once on the client and once again on
       // the server. To preserve backwards compatibility with Meteor passwords,
       // we do the same, but do it both on the server-side
