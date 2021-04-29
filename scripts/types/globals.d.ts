@@ -29,6 +29,11 @@ declare global {
     _id: string
     email: string
     displayName: string
+    services: {
+      password: {
+        bcrypt: string
+      }
+    }
   }
 
   /** Shape of user object that Database Action Scripts expect to be returned */

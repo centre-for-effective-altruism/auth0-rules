@@ -1,5 +1,8 @@
 import { Client as PGClient, ConnectionConfig as PGConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
+// Unclear to me why we need to do this to avoid name collision, but it appears
+// we do
+import { createHash as createHash_ } from 'crypto'
 import { MongoClient } from 'mongodb'
 
 /** Authenticates a user against the Parfit postgres database */
@@ -11,14 +14,19 @@ async function login(
   try {
     /** Get required dependencies */
     const bcrypt = require('bcrypt@5.0.1') as { compare: typeof compare }
+    const { createHash } = require('crypto') as {
+      createHash: typeof createHash_
+    }
     const { Client: PGClient } = require('pg@7.17.1')
     const { MongoClient } = require('mongodb@3.1.4')
 
     async function loginForumUser(): Promise<CallbackUser | null> {
-      /** TODO; Doc everywhere */
+      // Connect to the Forum DB
       const mongoClient: MongoClient = new MongoClient(configuration.MONGO_URI)
       await mongoClient.connect()
 
+      // Query the users collection for someone with our email
+      // Only the toArray is asynchronous
       const forumResult = await mongoClient
         .db(configuration.MONGO_DB_NAME)
         .collection<ForumUser>('users')
@@ -32,7 +40,24 @@ async function login(
       }
 
       // TODO; which one?
+      // This question is hard
       const forumUser = forumResult[0]
+
+      // Check their password - taken from:
+      // EAForum/packages/lesswrong/server/vulcan-lib/apollo-server/authentication.tsx
+      // Meteor hashed its passwords twice, once on the client and once again on
+      // the server. To preserve backwards compatibility with Meteor passwords,
+      // we do the same, but do it both on the server-side
+      const meteorClientSideHash = createHash('sha256')
+        .update(password)
+        .digest('hex')
+      const isValid = await bcrypt.compare(
+        meteorClientSideHash,
+        forumUser.services.password.bcrypt
+      )
+      if (!isValid) {
+        return null
+      }
 
       return {
         id: forumUser._id,
@@ -80,7 +105,9 @@ async function login(
 
       /** Check that the supplied password matches the one in the database */
       const isValid = await bcrypt.compare(password, Person.password)
-      if (!isValid) return callback(new WrongUsernameOrPasswordError(email))
+      if (!isValid) {
+        return null
+      }
 
       /** Return the valid user back to Auth0 */
       return {
