@@ -1,4 +1,5 @@
 import { Client, ConnectionConfig } from 'pg'
+import { DbScriptCallback } from '../../types/db-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just
@@ -6,6 +7,18 @@ import { Client, ConnectionConfig } from 'pg'
 // function definitions and inserts them into the top of the function. It is my
 // (JP's) opinion that we should wait until there's one more instance of code
 // re-use before making that refactor.
+
+/**
+ * Parfit DB Person, as returned by the written query
+ *
+ * It is up to the programmer to keep this up to date if the query changes
+ */
+type PersonResult = {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+}
 
 async function getByEmail(email: string, callback: DbScriptCallback) {
   // Auth0 comment:

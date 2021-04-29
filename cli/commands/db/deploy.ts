@@ -15,7 +15,7 @@ export default async function run() {
     }
     if (!dbConnection.id) {
       // Apparently Auth0 doesn't guarantee that a connection has an id??
-      throw new Error('How the hell did we get a connection without an id')
+      throw new Error('Connection is missing ID (this should never happen)')
     }
     const options = dbConnection.options
     const ourCustomScripts = Object.fromEntries(
@@ -26,12 +26,12 @@ export default async function run() {
         ])
       )
     )
+    // It is crucial that the options object contains the previous options, as
+    // the whole options object will be overriden in this update
     const updatedCustomScripts = {
       ...options.customScripts,
       ...ourCustomScripts,
     }
-    // It is crucial that the options object contains the previous options, as
-    // the whole options object will be overriden in this update
     options.customScripts = updatedCustomScripts
     await auth0.updateConnection({ id: dbConnection.id }, { options })
     console.log(`Scripts updated ${green(`\u2713`)}`)

@@ -25,11 +25,11 @@ export default async function run() {
       missingRules.push(ruleDef)
       continue
     }
-    const script = await generateScript(ruleDef)
+    const script = await generateScript(ruleDef, 'rules')
     diffs.push([ruleDef, diffLines(Rule.script, script)])
   }
   // print the diffs
-  const upToDateRules = printScriptDiff(diffs)
+  const upToDateRules = printScriptDiff(diffs, 'rules')
   if (upToDateRules.length) {
     console.log(`\n[[ Up-to-date rules ]]`)
     console.log(

@@ -1,5 +1,19 @@
 import { Client, ConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
+import { DbScriptCallback } from '../../types/db-types'
+
+/**
+ * Parfit DB Person, as returned by the written query
+ *
+ * It is up to the programmer to keep this up to date if the query changes
+ */
+type PersonResult = {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  password: string
+}
 
 /** Authenticates a user against the Parfit postgres database */
 async function login(
