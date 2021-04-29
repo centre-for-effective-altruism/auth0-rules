@@ -10,3 +10,12 @@ interface CallbackUser extends User {
 }
 /** Signature of Database Action Script callback */
 type DbScriptCallback = (error: Error | null, person?: CallbackUser) => any
+
+/** Configuration available from connection environment variables */
+interface DbConfiguration {
+  POSTGRES_USERNAME: string
+  POSTGRES_PASSWORD: string
+  POSTGRES_HOST: string
+  POSTGRES_DATABASE: string
+  POSTGRES_PORT?: string
+}
