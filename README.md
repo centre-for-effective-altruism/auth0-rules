@@ -21,6 +21,8 @@ A utility for managing rule and db script definitions on an Auth0 tenant.
   - [Manifests](#manifests)
   - [Rule ordering](#rule-ordering)
   - [Templating](#templating)
+- [Running Database Action Scripts against a local dev environment](#running-database-action-scripts-against-a-local-dev-environment)
+  - [A note on the development connection name](#a-note-on-the-development-connection-name)
 - [Automatic deploys (`TODO`)](#automatic-deploys-todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -198,7 +200,7 @@ AUTH0_CLIENT_SECRET=<client secret for the Rules Management client application>
 
 This repo consists of two main folders:
 
-- `./scripts` – contain the actual script definitions that will run on Auth0
+- `./scripts` – contains the actual script definitions that will run on Auth0
 - `./src` – contains the the CLI, and the manifest file that tells it which
   scripts to deploy to Auth0.
 
@@ -227,8 +229,8 @@ Defining the script itself (as a file in e.g. `./scripts/rules/src`)
 
 - [Registering the script in the manifest](#the-manifest) (`./src/manifests`)
 
-Scripts are defined in `./scripts/rules/src`. Each script lives in its own file.
-They are written as Typescript files (`.ts` extension).
+Scripts are defined in `./scripts/[rules|db]/src`. Each script lives in its own
+file. They are written as Typescript files (`.ts` extension).
 
 ### Basic rule structure
 
@@ -321,8 +323,9 @@ Further discussion about using modules can be found
 A manifest declares the scripts that will be deployed to Auth0. They are found
 in `./src/manifest.ts`.
 
-A Rule manifest consists of an array of `RuleDefinitions`, which are objects
-with the following properties:
+A manifest consists of an array of either `RuleDefinitions` or
+`DBActionScriptDefinition`. Rule Definitions are objects with the following
+properties:
 
 - `name` (string): The name of the rule that will appear in the Auth0 UI. This
   is used to match against existing rules on Auth0 for the purpose of diffing
@@ -336,6 +339,9 @@ with the following properties:
   tenant that should be injected into the rule (see [Templating](#templating)
   below). Should return an object with keys corresponding to Handlebars template
   variables. Can be `async`.
+
+Database Action Script Definitions are the same but without `enabled`, as they
+cannot be disabled.
 
 ### Rule ordering
 
@@ -517,6 +523,43 @@ function addScopesToIdToken(user, context, callback) {
   callback(null, user, context)
 }
 ```
+
+## Running Database Action Scripts against a local dev environment
+
+If you want to test an updated Database Action Script you might wonder how to do
+so when you're local database isn't exactly easy to hit from Auth0's servers. It
+might be more trouble than it's worth and you should just test on staging.
+However it is not impossible to test locally.
+
+First, make sure you have [Packet Riot](https://packetriot.com/) installed
+(`brew install packetriot`). You'll need a paid plan.
+
+Next, set up two TCP ports to forward to your local databases.
+
+```
+pktriot tunnel tcp allocate
+pktriot tunnel tcp forward --destination 127.0.0.1 --dstport 5432 --port 22996
+```
+
+Where 5432 is the postgres port number, and 22996 is the port number it randomly
+generated after the first command.
+
+Then you'll need to update the connection environment variables in the Auth0 UI
+to reflect your packet riot host.
+
+### A note on the development connection name
+
+You can technically have more than one database of Auth0 usernames and
+passwords. It's pretty rare that you'd actually want to do so however. In our
+case, we were faced with an issue where the original database (called
+Username-Password-Authentication, like the others), was not set up with user
+migration enabled, and Auth0 strangely did not allow for us to enable it after
+the fact. So we use 'Forum-User-Migration', which was created specially for
+testing the ability to migrate Forum users.
+
+To use this connection in your application, you'll need to update your
+application in the Auth0 UI, where you can select which connection it uses for
+username and password authentication.
 
 ## Automatic deploys (`TODO`)
 

@@ -38,7 +38,7 @@ export default async function run() {
     let order = getLargestOrder(Rules)
     for (const ruleDef of RULE_MANIFEST) {
       // generate the final script
-      const script = await generateScript(ruleDef)
+      const script = await generateScript(ruleDef, 'rules')
       // check if the rule exists
       const existingRule = Rules.find((Rule) => Rule.name === ruleDef.name)
       if (existingRule?.id) {

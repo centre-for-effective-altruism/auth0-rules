@@ -17,9 +17,9 @@ export default async function run() {
   }
   const diffs: [DBActionScriptDefinition, Change[]][] = []
   for (const scriptDef of DB_MANIFEST) {
-    const our_script = await generateScript(scriptDef, 'db')
-    const existing_script = dbConnection.options.customScripts?.[scriptDef.name]
-    if (!existing_script) {
+    const ourScript = await generateScript(scriptDef, 'db')
+    const existingScript = dbConnection.options.customScripts?.[scriptDef.name]
+    if (!existingScript) {
       throw new Error(
         [
           'Could not find specified database action script on connection.',
@@ -28,9 +28,9 @@ export default async function run() {
         ].join('\n')
       )
     }
-    diffs.push([scriptDef, diffLines(existing_script, our_script)])
+    diffs.push([scriptDef, diffLines(existingScript, ourScript)])
   }
-  const upToDateScripts = printScriptDiff(diffs, 'db scripts')
+  const upToDateScripts = printScriptDiff(diffs, 'db')
   if (DB_MANIFEST.length === upToDateScripts.length) {
     console.log('Database action scripts are up-to-date')
   }

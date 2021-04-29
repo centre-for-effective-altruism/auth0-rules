@@ -1,5 +1,6 @@
 import { Client as PGClient, ConnectionConfig as PGConnectionConfig } from 'pg'
 import { MongoClient } from 'mongodb'
+import { CallbackUser, DbScriptCallback } from '../../types/db-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just
@@ -7,6 +8,24 @@ import { MongoClient } from 'mongodb'
 // function definitions and inserts them into the top of the function. It is my
 // (JP's) opinion that we should wait until there's one more instance of code
 // re-use before making that refactor.
+
+/**
+ * Parfit DB Person, as returned by the written query
+ *
+ * It is up to the programmer to keep this up to date if the query changes
+ */
+type PersonResult = {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+}
+/** Forum user */
+type ForumUser = {
+  _id: string
+  email: string
+  displayName: string
+}
 
 /** Authenticates a user against existing user databases */
 async function getByEmail(email: string, callback: DbScriptCallback) {
@@ -74,10 +93,9 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
 
       /** Get the person based on their email, joining on the password table */
       const parfitQuery = `
-        select
-          person.id, email, first_name, last_name, password
-        from people.person
-        join auth.password on password.person_id = person.id
+        SELECT
+          id, email, first_name, last_name
+        FROM people.person
         where person.email = $1
       `
       const parfitResult = await pgClient.query<PersonResult>(parfitQuery, [

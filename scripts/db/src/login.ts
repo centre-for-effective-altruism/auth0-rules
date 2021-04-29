@@ -4,6 +4,31 @@ import { compare } from 'bcrypt'
 // we do
 import { createHash as createHash_ } from 'crypto'
 import { MongoClient } from 'mongodb'
+import { CallbackUser, DbScriptCallback } from '../../types/db-types'
+
+/**
+ * Parfit DB Person, as returned by the written query
+ *
+ * It is up to the programmer to keep this up to date if the query changes
+ */
+type PersonResult = {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  password: string
+}
+/** Forum user */
+type ForumUser = {
+  _id: string
+  email: string
+  displayName: string
+  services: {
+    password: {
+      bcrypt: string
+    }
+  }
+}
 
 /** Authenticates a user against existing user databases */
 async function login(
