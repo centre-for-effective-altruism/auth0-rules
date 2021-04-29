@@ -2,9 +2,9 @@
 export {}
 
 declare global {
-  namespace NodeJS {
-    interface Global {
-      CACHE_KEY: string
-    }
+  /** Extend this interface, it will appear as the type of the global configuration object */
+  interface IAuth0RuleConfiguration {
+    AUTH0_CLIENT_ID: string
+    AUTH0_CLIENT_SECRET: string
   }
 }

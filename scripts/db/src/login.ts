@@ -5,6 +5,7 @@ import { compare } from 'bcrypt'
 import { createHash as createHash_ } from 'crypto'
 import { MongoClient } from 'mongodb'
 import { CallbackUser, DbScriptCallback } from '../../types/db-types'
+import { DbConfiguration } from '../types/db-types'
 
 /**
  * Parfit DB Person, as returned by the written query
@@ -46,17 +47,32 @@ async function login(
     const { MongoClient } = require('mongodb@3.1.4')
 
     /**
+     * `configuration` is declared a global by @typez/auth0-rules-types, and
+     * there's no way to undo that. We must resort to a hack here to inform
+     * typescript of the actual shape of `configuration`
+     */
+    const {
+      POSTGRES_USERNAME,
+      POSTGRES_PASSWORD,
+      POSTGRES_HOST,
+      POSTGRES_DATABASE,
+      POSTGRES_PORT,
+      MONGO_URI,
+      MONGO_DB_NAME,
+    } = (configuration as unknown) as DbConfiguration
+
+    /**
      * Logic in this function tries to match:
      * EAForum/packages/lesswrong/server/vulcan-lib/apollo-server/authentication.tsx
      */
     async function loginForumUser(): Promise<CallbackUser | null> {
       // Connect to the Forum DB
-      const mongoClient: MongoClient = new MongoClient(configuration.MONGO_URI)
+      const mongoClient: MongoClient = new MongoClient(MONGO_URI)
       await mongoClient.connect()
 
       // Query the users collection for someone with our email
       const forumUser = await mongoClient
-        .db(configuration.MONGO_DB_NAME)
+        .db(MONGO_DB_NAME)
         .collection<ForumUser>('users')
         .findOne({ 'emails.address': email })
 
@@ -91,13 +107,11 @@ async function login(
     async function loginParfitUser(): Promise<CallbackUser | null> {
       /** Declare connection info */
       const pgConnectionInfo: PGConnectionConfig = {
-        user: configuration.POSTGRES_USERNAME,
-        password: configuration.POSTGRES_PASSWORD,
-        host: configuration.POSTGRES_HOST,
-        database: configuration.POSTGRES_DATABASE,
-        port: configuration.POSTGRES_PORT
-          ? parseInt(configuration.POSTGRES_PORT)
-          : 5432,
+        user: POSTGRES_USERNAME,
+        password: POSTGRES_PASSWORD,
+        host: POSTGRES_HOST,
+        database: POSTGRES_DATABASE,
+        port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
         ssl: TEMPLATE_DATA.pgShouldSsl,
       }
       /** Construct a postgres client and connect to the server */
