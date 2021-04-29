@@ -223,8 +223,6 @@ the manifest file), you should also run `yarn build:cli:watch`.
 
 There are two steps to writing an Auth0 script:
 
--<!-- TODO; Imma stop here --->
-
 Defining the script itself (as a file in e.g. `./scripts/rules/src`)
 
 - [Registering the script in the manifest](#the-manifest) (`./src/manifests`)
