@@ -5,7 +5,7 @@ import { compare } from 'bcrypt'
 import { createHash as createHash_ } from 'crypto'
 import { MongoClient } from 'mongodb'
 
-/** Authenticates a user against the Parfit postgres database */
+/** Authenticates a user against existing user databases */
 async function login(
   email: string,
   password: string,
@@ -21,7 +21,7 @@ async function login(
     const { MongoClient } = require('mongodb@3.1.4')
 
     /**
-     * Login in this function tries to match:
+     * Logic in this function tries to match:
      * EAForum/packages/lesswrong/server/vulcan-lib/apollo-server/authentication.tsx
      */
     async function loginForumUser(): Promise<CallbackUser | null> {
