@@ -1,5 +1,5 @@
 import { Client, ConnectionConfig } from 'pg'
-import { DbScriptCallback } from '../../types/db-types'
+import { DbScriptCallback } from '../types/db-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just

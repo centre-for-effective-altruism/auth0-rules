@@ -1,6 +1,6 @@
 import { Client, ConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
-import { DbScriptCallback } from '../../types/db-types'
+import { DbScriptCallback } from '../types/db-types'
 
 /**
  * Parfit DB Person, as returned by the written query
