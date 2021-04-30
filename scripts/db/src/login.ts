@@ -1,7 +1,5 @@
 import { Client as PGClient, ConnectionConfig as PGConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
-// Unclear to me why we need to do this to avoid name collision, but it appears
-// we do
 import { createHash as createHash_ } from 'crypto'
 import { MongoClient } from 'mongodb'
 import { CallbackUser, DbScriptCallback } from '../../types/db-types'
@@ -22,13 +20,17 @@ type PersonResult = {
 /** Forum user */
 type ForumUser = {
   _id: string
-  email: string
   displayName: string
   services: {
     password: {
       bcrypt: string
     }
   }
+  /**
+   * Email address is also stored in an email field, but as far as
+   * authentication is concerned, this is how we store emails
+   */
+  emails: { address: string; verified: boolean }[]
 }
 
 /** Authenticates a user against existing user databases */
@@ -97,10 +99,21 @@ async function login(
         return null
       }
 
+      // Which email did we find?
+      const emailInfo = forumUser.emails.find((e) => e.address === email)
+      if (!emailInfo) {
+        // This should never happen, as they were returned by mongo because that
+        // field matched
+        throw new Error(
+          `User found by email ${email}, does not have that email (should never happen)`
+        )
+      }
+
       return {
         id: forumUser._id,
-        nickname: forumUser.displayName,
-        email: forumUser.email,
+        username: forumUser.displayName,
+        email: emailInfo.address,
+        email_verified: emailInfo.verified,
       }
     }
 

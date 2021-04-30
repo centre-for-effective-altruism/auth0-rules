@@ -24,8 +24,12 @@ type PersonResult = {
 /** Forum user */
 type ForumUser = {
   _id: string
-  email: string
   displayName: string
+  /**
+   * Email address is also stored in an email field, but as far as
+   * authentication is concerned, this is how we store emails
+   */
+  emails: { address: string; verified: boolean }[]
 }
 
 /** Authenticates a user against existing user databases */
@@ -84,10 +88,22 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       if (!forumUser) {
         return null
       }
+
+      // Which email did we find?
+      const emailInfo = forumUser.emails.find((e) => e.address === email)
+      if (!emailInfo) {
+        // This should never happen, as they were returned by mongo because that
+        // field matched
+        throw new Error(
+          `User found by email ${email}, does not have that email (should never happen)`
+        )
+      }
+
       return {
         id: forumUser._id,
-        nickname: forumUser.displayName,
-        email: forumUser.email,
+        username: forumUser.displayName,
+        email: emailInfo.address,
+        email_verified: emailInfo.verified,
       }
     }
 
