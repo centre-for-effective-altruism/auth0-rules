@@ -71,7 +71,6 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       select
         person.id, email, first_name, last_name, password
       from people.person
-      join auth.password on password.person_id = person.id
       where person.email = $1
     `
     const result = await client.query<PersonResult>(query, [email])
