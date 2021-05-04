@@ -69,7 +69,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
     /** Get the person based on their email, joining on the password table */
     const query = `
       select
-        person.id, email, first_name, last_name, password
+        person.id, email, first_name, last_name
       from people.person
       where person.email = $1
     `
