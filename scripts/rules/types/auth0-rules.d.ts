@@ -7,4 +7,14 @@ declare global {
     AUTH0_CLIENT_ID: string
     AUTH0_CLIENT_SECRET: string
   }
+  namespace NodeJS {
+    /**
+     * Unused currently, but would be used if we wanted to cache expensive resources
+     *
+     * https://auth0.com/docs/rules/cache-resources
+     */
+    interface Global {
+      CACHE_KEY: string
+    }
+  }
 }
