@@ -1,7 +1,11 @@
 import { Client as PGClient, ConnectionConfig as PGConnectionConfig } from 'pg'
 import { MongoClient } from 'mongodb'
-import { CallbackUser, DbScriptCallback } from '../../types/db-types'
-import { DbConfiguration } from '../types/db-types'
+import {
+  CallbackUser,
+  DbConfiguration,
+  DbScriptCallback,
+  ForumUser,
+} from '../types/db-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just
@@ -20,16 +24,6 @@ type PersonResult = {
   email: string
   first_name: string
   last_name: string
-}
-/** Forum user */
-type ForumUser = {
-  _id: string
-  displayName: string
-  /**
-   * Email address is also stored in an email field, but as far as
-   * authentication is concerned, this is how we store emails
-   */
-  emails: { address: string; verified: boolean }[]
 }
 
 /** Authenticates a user against existing user databases */
@@ -95,13 +89,13 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
         // This should never happen, as they were returned by mongo because that
         // field matched
         throw new Error(
-          `User found by email ${email}, does not have that email (should never happen)`
+          `User found by email ${email}, does not have that email`
         )
       }
 
       return {
         id: forumUser._id,
-        username: forumUser.displayName,
+        nickname: forumUser.displayName,
         email: emailInfo.address,
         email_verified: emailInfo.verified,
       }
@@ -121,23 +115,21 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       const pgClient: PGClient = new PGClient(pgConnectionInfo)
       await pgClient.connect()
 
-      /** Get the person based on their email, joining on the password table */
+      /** Get the person based on their email */
       const parfitQuery = `
         SELECT
           id, email, first_name, last_name
         FROM people.person
         where person.email = $1
       `
-      const parfitResult = await pgClient.query<PersonResult>(parfitQuery, [
-        email,
-      ])
+      const Person = await pgClient
+        .query<PersonResult>(parfitQuery, [email])
+        .then((res) => res.rows[0])
 
       /** Close the connection */
       await pgClient.end()
 
-      const Person = parfitResult.rows[0]
-
-      if (parfitResult.rows.length === 0) {
+      if (!Person) {
         return null
       }
       return {
@@ -148,7 +140,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       }
     }
 
-    /** Give priority to Forum users, as the integration is newer */
+    /** Give priority to Forum users, as the integration is newer and it has more users */
     const forumUser = await getForumUser()
     if (forumUser) {
       return callback(null, forumUser)
