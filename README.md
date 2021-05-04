@@ -1,6 +1,6 @@
 # Auth0 Rules
 
-A utility for managing rule definitions on an Auth0 tenant.
+A utility for managing rule and db script definitions on an Auth0 tenant.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -8,18 +8,22 @@ A utility for managing rule definitions on an Auth0 tenant.
 ## Contents
 
 - [Context](#context)
+  - [Context on Rules](#context-on-rules)
+  - [Context on Database Action Scripts](#context-on-database-action-scripts)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Commands](#commands)
 - [Environment and Permissions](#environment-and-permissions)
 - [Structure and compilation](#structure-and-compilation)
-- [Defining Rules](#defining-rules)
+- [Defining Scripts](#defining-scripts)
   - [Basic rule structure](#basic-rule-structure)
   - [External dependencies](#external-dependencies)
-  - [The rule manifest](#the-rule-manifest)
+  - [Manifests](#manifests)
   - [Rule ordering](#rule-ordering)
   - [Templating](#templating)
-- [Automatic deploys (`TODO`)](#automatic-deploys-todo)
+- [Running Database Action Scripts against a local dev environment](#running-database-action-scripts-against-a-local-dev-environment)
+  - [A note on the development connection name](#a-note-on-the-development-connection-name)
+- [Automatic deploys](#automatic-deploys)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -29,8 +33,23 @@ A utility for managing rule definitions on an Auth0 tenant.
 [Auth0](https://auth0.com/) to provide authentication and authorization to a
 number of services (e.g. [EA Funds](https://funds.effectivealtruism.org),
 [Giving What We Can](https://www.givingwhatwecan.org), the
-[EA Forum](https://forum.effectivealtruism.org) etc). When users log in, we run
-a number of
+[EA Forum](https://forum.effectivealtruism.org) etc).
+
+Auth0 provides a number of places where they call our code and allow us to
+perform custom modifications to their default behavior, such as
+[Rules](#context-on-rules), and
+[Database Action Scripts](#context-on-database-action-scripts) below.
+
+The default method of creating and editing these scripts is to use Auth0's
+web-based UI. This makes it difficult to version them, and to ensure that they
+are kept in sync between production, staging, and local Auth0 tenants.
+
+This repo allows us to write our scripts in an IDE, using TypeScript, and then
+automatically deploy them. 😎
+
+### Context on Rules
+
+When users log in, we run a number of
 [rules (part of Auth0's login pipeline)](https://auth0.com/docs/rules) that
 affect the final login state (e.g. what data is present in the user's access
 token or ID token, which permissions they are allowed to request etc.). From
@@ -42,12 +61,23 @@ token or ID token, which permissions they are allowed to request etc.). From
 > your Rules code executes isolated from the code of other Auth0 tenants in a
 > sandbox.
 
-The default method of creating and editing rules is to use Auth0's web-based UI.
-This makes it difficult to version rules, and to ensure that rules are kept in
-sync between production, staging, and local Auth0 tenants.
+### Context on Database Action Scripts
 
-This repo allows us to write our rules in an IDE, using TypeScript, and then
-deploy them to an Auth0 tenant with a single command.
+So long as not all of our users have logged in since we started using Auth0, we
+will still need to be able to authenticate them from our local databases. We
+_can't_ do this just by sending Auth0 everyone's passwords, because we don't
+store passwords, we store hashes of passwords.
+
+Example: Torble Dorp has an account on EA Funds, from 2019. He then clicks login
+on the modern site, and enters his username and password into Auth0's UI. Auth0
+first checks for Torble Dorp in its own database. No Torble Dorp there. So then
+Auth0 calls out to our script. "Do these credentials log someone in?", it asks?
+Yes. Auth0 now takes over management of Torble Dorp's account.
+
+We write two scripts for this to happen: Login, and Get User. Get User is used
+in password resets, and just takes an email as an argument. The scripts are
+managed separately from Rules, but otherwise follow a lot of the same, uh,
+rules.
 
 ## Installation
 
@@ -59,10 +89,10 @@ deploy them to an Auth0 tenant with a single command.
 
 ## Usage
 
-Run the scripts with `yarn rules`
+Sync with Auth0 using `yarn cli [rules|db]`
 
 ```
-Usage: rules [options] [command]
+Usage: yarn cli rules [options] [command]
 
 Options:
   -h, --help      display help for command
@@ -79,21 +109,23 @@ Commands:
 #### `deploy`
 
 ```sh
-yarn rules deploy
+yarn [rules|db] deploy
 ```
 
-Deploys all rules in the manifest to Auth0. Rules that don't match with those
-that are already on the Auth0 tenant will be created, those that do will be
-updated. Rules that are defined on Auth0 but that aren't in the manifest will be
-left alone, and will run before all rules that are in the manifest.
+Deploys all scripts in the manifest to Auth0.
+
+Rules that don't match with those that are already on the Auth0 tenant will be
+created, those that do will be updated. Rules that are defined on Auth0 but that
+aren't in the manifest will be left alone, and will run before all rules that
+are in the manifest.
 
 #### `diff`
 
 ```
-yarn rules diff
+yarn [rules|db] diff
 ```
 
-Diffs locally defined rules against those defined on the Auth0 tenant.
+Diffs locally defined scripts against those defined on the Auth0 tenant.
 
 The output will look something like:
 
@@ -143,6 +175,8 @@ application, and needs the following permissions on the `Auth0 Management API`.
 - `create:rules`
 - `read:rules`
 - `update:rules`
+- `read:connections`
+- `update:connections`
 
 **Permissions used by specific rule generators**
 
@@ -166,9 +200,9 @@ AUTH0_CLIENT_SECRET=<client secret for the Rules Management client application>
 
 This repo consists of two main folders:
 
-- `./rules` – contains the actual rule definitions that will run on Auth0
-- `./src` – contains the scripts that run the CLI, and the manifest file that
-  tells these scripts which rules to deploy to Auth0.
+- `./scripts` – contains the actual script definitions that will run on Auth0
+- `./src` – contains the the CLI, and the manifest file that tells it which
+  scripts to deploy to Auth0.
 
 These folders are independent TypeScript projects, due to them each requiring
 different compilation options.
@@ -179,23 +213,24 @@ different compilation options.
 - The CLI scripts are compiled to `ES5` Javascript, for easier consumption by
   Node.js, as Node doesn't currently support ESModules syntax (e.g. `import`).
 
-Both the CLI and the rule definitions are compiled to the `./dist` folder. You
+Both the CLI and the script definitions are compiled to the `./dist` folder. You
 can build both at once by running `yarn build` (which is an alias for
-`yarn build:cli && yarn build:rules`).
+`yarn build:cli && yarn build:scripts`).
 
-You can run `yarn build:rules:watch` to have TypeScript automatically compile
-rules as you are developing them. If instead you are editing the CLI itself
-(including the manifest file), you should run `yarn build:cli:watch`.
+You can run `yarn build:scripts:watch` to have TypeScript automatically compile
+rules as you are developing them. If you need to edit the CLI itself (including
+the manifest file), you should also run `yarn build:cli:watch`.
 
-## Defining Rules
+## Defining Scripts
 
-There are two steps to writing an Auth0 rule:
+There are two steps to writing an Auth0 script:
 
-- Defining the rule itself (as a file in `./rules/src`)
-- [Registering the rule in the manifest](#the-rule-manifest) (`./src/manifest`)
+Defining the script itself (as a file in e.g. `./scripts/rules/src`)
 
-Rules are defined in the `./rules/src` directory. Each rule lives in its own
-file. Rules are written as Typescript files (`.ts` extension).
+- [Registering the script in the manifest](#the-manifest) (`./src/manifests`)
+
+Scripts are defined in `./scripts/[rules|db]/src`. Each script lives in its own
+file. They are written as Typescript files (`.ts` extension).
 
 ### Basic rule structure
 
@@ -283,13 +318,14 @@ For a full list of modules that can be dynamically required, see the
 Further discussion about using modules can be found
 [in the Auth0 docs](https://auth0.com/docs/best-practices/rules-best-practices/rules-environment-best-practices).
 
-### The rule manifest
+### Manifests
 
-The rule manifest declares the rules that will be deployed to Auth0. The
-manifest is the default export of `./src/manifest.ts`.
+A manifest declares the scripts that will be deployed to Auth0. They are found
+in `./src/manifest.ts`.
 
-The manifest exports an array of `RuleDefinitions`, which are objects with the
-following properties:
+A manifest consists of an array of either `RuleDefinitions` or
+`DBActionScriptDefinition`. Rule Definitions are objects with the following
+properties:
 
 - `name` (string): The name of the rule that will appear in the Auth0 UI. This
   is used to match against existing rules on Auth0 for the purpose of diffing
@@ -303,6 +339,9 @@ following properties:
   tenant that should be injected into the rule (see [Templating](#templating)
   below). Should return an object with keys corresponding to Handlebars template
   variables. Can be `async`.
+
+Database Action Script Definitions are the same but without `enabled`, as they
+cannot be disabled.
 
 ### Rule ordering
 
@@ -319,9 +358,9 @@ Sometimes, we need to inject variables that will be different on each Auth0
 tenant. For example, maybe you only want a rule to apply to certain
 applications, so you want to use a list of these application IDs into your
 function – obviously these IDs will be different on different tenants. Instead
-of hard-coding these values into the rule code, you can instead inject a
+of hard-coding these values into the script code, you can instead inject a
 `TEMPLATE_DATA` global, that will be populated by data from the `getData()`
-function in the rule manifest.
+function in the script manifest.
 
 The `TEMPLATE_DATA` variable is declared as a TypeScript global with type
 `Record<string, any>`, so rule file will compile happily. It's a good idea to
@@ -334,7 +373,7 @@ function myGreatFunction() {
 }
 ```
 
-When rules are compiled, any rule that has a `getData()` property on its
+When scripts are compiled, any rule that has a `getData()` property on its
 manifest will inject a `TEMPLATE_DATA` variable into the top of the function
 declaration:
 
@@ -485,6 +524,44 @@ function addScopesToIdToken(user, context, callback) {
 }
 ```
 
-## Automatic deploys 
+## Running Database Action Scripts against a local dev environment
 
-We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant when merging to `master` or `dev`.
+If you want to test an updated Database Action Script you might wonder how to do
+so when you're local database isn't exactly easy to hit from Auth0's servers. It
+might be more trouble than it's worth and you should just test on staging.
+However it is not impossible to test locally.
+
+First, make sure you have [Packet Riot](https://packetriot.com/) installed
+(`brew install packetriot`). You'll need a paid plan.
+
+Next, set up two TCP ports to forward to your local databases.
+
+```
+pktriot tunnel tcp allocate
+pktriot tunnel tcp forward --destination 127.0.0.1 --dstport 5432 --port 22996
+```
+
+Where 5432 is the postgres port number, and 22996 is the port number it randomly
+generated after the first command.
+
+Then you'll need to update the connection environment variables in the Auth0 UI
+to reflect your packet riot host.
+
+### A note on the development connection name
+
+You can technically have more than one database of Auth0 usernames and
+passwords. It's pretty rare that you'd actually want to do so however. In our
+case, we were faced with an issue where the original database (called
+Username-Password-Authentication, like the others), was not set up with user
+migration enabled, and Auth0 strangely did not allow for us to enable it after
+the fact. So we use 'Forum-User-Migration', which was created specially for
+testing the ability to migrate Forum users.
+
+To use this connection in your application, you'll need to update your
+application in the Auth0 UI, where you can select which connection it uses for
+username and password authentication.
+
+## Automatic deploys
+
+We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant
+when merging to `master` or `dev`.
