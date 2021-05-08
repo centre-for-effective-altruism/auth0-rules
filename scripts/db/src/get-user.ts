@@ -75,14 +75,72 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
     `
     const result = await client.query<PersonResult>(query, [email])
 
-    /** Close the connection */
-    await client.end()
-
+    // If there are no rows returned, get out of here
     if (result.rows.length === 0) {
+      // Close the connection before returning
+      await client.end()
       return callback(null)
     }
 
     const Person = result.rows[0]
+
+    let TemporaryPerson
+
+    /**
+     * If we have a person, check whether they were recently created as a
+     * temporary_person (typically this will happen if a person makes an EA
+     * Funds payment without signing up first).
+     *
+     * The temporary_person mechanic works by creating a person under the hood.
+     * If we don't run this check, the user won't be able to immediately sign
+     * up, because the query above will find a person, and Auth0 will think that
+     * they already have an account.
+     *
+     * Instead, if the person has recently been created, and the session token
+     * for the temporary_person that created that account is still valid, we lie
+     * to Auth0 and say that this person doesn't exist. Auth0 will then allow
+     * the user to create an account with a password, and this will be linked to
+     * the person when they are returned to our application.
+     *
+     * A limitation of this approach is that the person won't be able to request
+     * a password reset until the temporary_person's session token expires. This
+     * seems fine – generally people will either go to create an account
+     * immediately, or they'll reset their password at some later time, and the
+     * tokens are short-lived.
+     *
+     * This also has a small security implication – an attacker could
+     * theoretically attempt to sign up for an account using the email address
+     * of a user who has very recently created an account while their
+     * session_token is still valid.
+     */
+    if (Person) {
+      /**
+       * Check whether this person was created during a recent
+       * temporary_person's token validity period
+       */
+      const tempPersonQuery = `
+        SELECT temporary_person.* FROM people.temporary_person
+        JOIN people.person on person.email = temporary_person.email
+             AND person.created_at BETWEEN temporary_person.token_issued_at
+                                   AND temporary_person.token_expires_at
+        WHERE temporary_person.email = $1
+          AND temporary_person.token_expires_at > NOW()
+      `
+      const tempPersonResult = await client.query(tempPersonQuery, [
+        Person.email,
+      ])
+      TemporaryPerson = tempPersonResult.rows[0]
+    }
+    /** Close the Postgres connection */
+    await client.end()
+
+    /**
+     * If we found a temporary_person matching the criteria, then lie to Auth0
+     * and say that this person doesn't exist
+     */
+    if (TemporaryPerson) {
+      return callback(null)
+    }
 
     /** Return the valid user back to Auth0 */
     return callback(null, {
