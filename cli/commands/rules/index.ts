@@ -1,6 +1,6 @@
 import program from 'commander'
-import deploy from './commands/deploy'
-import diff from './commands/diff'
+import diff from './diff'
+import deploy from './deploy'
 
 program
   .command('deploy')

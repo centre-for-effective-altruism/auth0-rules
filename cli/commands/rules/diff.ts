@@ -1,69 +1,41 @@
-import { generateRuleScript, getAllRules } from '../lib/utils'
+import { generateScript, getAllRules, printScriptDiff } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
-import MANIFEST from '../manifest'
+import { RULE_MANIFEST } from '../../manifests'
 import { Rule } from 'auth0'
-import { cyan, green, grey, magenta, red, redBright } from 'chalk'
-import { padEnd } from 'lodash'
+import { cyan, green, grey, magenta, red } from 'chalk'
 
 type DiffPair = [RuleDefinition, Rule | undefined]
 
 export default async function run() {
   const Rules = await getAllRules()
   // Match rules in the manifest to existing Auth0 rules
-  const matches: DiffPair[] = MANIFEST.map((ruleDef) => [
+  const matches: DiffPair[] = RULE_MANIFEST.map((ruleDef) => [
     ruleDef,
     Rules.find((Rule) => ruleDef.name === Rule.name),
   ])
   // Rules that exist on Auth0 but are not defined in the manifest
   const extras: Rule[] = Rules.filter((Rule) =>
-    MANIFEST.every((ruleDef) => ruleDef.name !== Rule.name)
+    RULE_MANIFEST.every((ruleDef) => ruleDef.name !== Rule.name)
   )
   const diffs: [RuleDefinition, Change[]][] = []
   const missingRules: RuleDefinition[] = []
-  const upToDateRules: RuleDefinition[] = []
   // generate the diffs
   for (const [ruleDef, Rule] of matches) {
     if (!Rule?.script) {
       missingRules.push(ruleDef)
       continue
     }
-    const script = await generateRuleScript(ruleDef)
+    const script = await generateScript(ruleDef, 'rules')
     diffs.push([ruleDef, diffLines(Rule.script, script)])
   }
   // print the diffs
-  let changesHeaderPrinted = false
-  for (const [ruleDef, changes] of diffs) {
-    if (changes.every((part) => !part.added || part.removed)) {
-      upToDateRules.push(ruleDef)
-      continue
-    }
-    if (!changesHeaderPrinted) {
-      console.log(`[[ Changed rules ]]`)
-      changesHeaderPrinted = true
-    }
-    const lineDelimiter = padEnd('-', ruleDef.name.length + 3, '-')
-    console.log(`- ${cyan(ruleDef.name)}:`)
-    console.log(lineDelimiter)
-    const firstCharRE = /^(.|\n)/gm
-    for (const part of changes) {
-      // add a space character to the beginning of unchanged lines to preserve
-      // alignment when we add +/- chars
-      const output = part.added
-        ? green(part.value.replace(firstCharRE, '+$1'))
-        : part.removed
-        ? redBright(part.value.replace(firstCharRE, '-$1'))
-        : grey(part.value.replace(firstCharRE, ' $1'))
-      // we're writing character by character, so we do this by piping to
-      // STDOUT directly rather than using console.log
-      process.stderr.write(output)
-    }
-  }
+  const upToDateRules = printScriptDiff(diffs, 'rules')
   if (upToDateRules.length) {
     console.log(`\n[[ Up-to-date rules ]]`)
     console.log(
       grey(
         `${
-          upToDateRules.length === MANIFEST.length
+          upToDateRules.length === RULE_MANIFEST.length
             ? 'All'
             : upToDateRules.length
         } rules defined in the manifest are identical to those that exist on the Auth0 tenant:`

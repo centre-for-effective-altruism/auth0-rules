@@ -5,6 +5,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
+    "lib": ["es2019"],
     "moduleResolution": "node",
     "noEmitOnError": true,
     "outDir": "dist",
@@ -15,5 +16,5 @@
     "types": ["node"]
   },
   "exclude": ["node_modules", "**/*.spec.ts"],
-  "include": ["src/**/*.ts"]
+  "include": ["cli/**/*.ts"]
 }

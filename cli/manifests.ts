@@ -5,13 +5,14 @@ import {
   isValidClient,
   isValidRole,
 } from './lib/utils'
+const { NODE_ENV } = process.env
 
 /**
  * List of rules that should exist on the Auth0 tenant.
  *
  * Rules will be executed in the order they are defined
  */
-const MANIFEST: RuleDefinition[] = [
+export const RULE_MANIFEST: RuleDefinition[] = [
   {
     name: 'Add email to access token',
     file: 'email-to-access-token',
@@ -90,4 +91,28 @@ const MANIFEST: RuleDefinition[] = [
   },
 ]
 
-export default MANIFEST
+/**
+ * List of Database Action Scripts to Deploy.
+ *
+ * Should contain `login`, `get_user`, and nothing else.
+ */
+export const DB_MANIFEST: DBActionScriptDefinition[] = [
+  {
+    name: 'login',
+    file: 'login',
+    getData: async () => {
+      return {
+        pgShouldSsl: NODE_ENV !== 'development',
+      }
+    },
+  },
+  {
+    name: 'get_user',
+    file: 'get-user',
+    getData: async () => {
+      return {
+        pgShouldSsl: NODE_ENV !== 'development',
+      }
+    },
+  },
+]

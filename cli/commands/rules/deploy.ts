@@ -1,16 +1,15 @@
 import { Rule } from 'auth0'
 import { red, blue, yellow, green } from 'chalk'
-import { padEnd, padStart, truncate } from 'lodash'
-import auth0 from '../lib/client'
+import auth0 from '../../lib/client'
 import {
   getAllRules,
-  generateRuleScript,
+  generateScript,
   formatUpdateRuleMessage,
-} from '../lib/utils'
-import MANIFEST from '../manifest'
+} from '../../lib/utils'
+import { RULE_MANIFEST } from '../../manifests'
 
 function getLargestOrder(Rules: Rule[]): number {
-  const ruleNames = MANIFEST.map((ruleDef) => ruleDef.name)
+  const ruleNames = RULE_MANIFEST.map((ruleDef) => ruleDef.name)
   const highestOrder = Rules.filter(
     (Rule) => Rule.name && !ruleNames.includes(Rule.name)
   ).reduce((prev, Rule) => {
@@ -37,9 +36,9 @@ export default async function run() {
     const Rules = await getAllRules()
     // Get the order of the last rule
     let order = getLargestOrder(Rules)
-    for (const ruleDef of MANIFEST) {
+    for (const ruleDef of RULE_MANIFEST) {
       // generate the final script
-      const script = await generateRuleScript(ruleDef)
+      const script = await generateScript(ruleDef, 'rules')
       // check if the rule exists
       const existingRule = Rules.find((Rule) => Rule.name === ruleDef.name)
       if (existingRule?.id) {
