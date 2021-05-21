@@ -1,5 +1,6 @@
 import { Rule } from 'auth0'
 import { red, blue, yellow, green } from 'chalk'
+import { exit } from 'process'
 import auth0 from '../../lib/client'
 import {
   getAllRules,
@@ -64,5 +65,6 @@ export default async function run() {
     }
   } catch (err) {
     console.error(red(err.message))
+    exit(1)
   }
 }
