@@ -3,6 +3,7 @@ import auth0 from '../../lib/client'
 import { generateScript, getAllConnections } from '../../lib/utils'
 import { DB_MANIFEST } from '../../manifests'
 import { CONNECTION_NAME } from '../../lib/db-utils'
+import { exit } from 'process'
 
 export default async function run() {
   try {
@@ -37,5 +38,6 @@ export default async function run() {
     console.log(`Scripts updated ${green(`\u2713`)}`)
   } catch (err) {
     console.error(red(err.message))
+    exit(1)
   }
 }
