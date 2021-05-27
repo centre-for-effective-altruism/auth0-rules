@@ -88,6 +88,12 @@ async function login(
         return null
       }
 
+      // Just in case we were dumb and did a stupid manual operation in our
+      // overly-flexible database
+      if (!Array.isArray(forumUser.emails)) {
+        throw new Error('Expected emails field to be an array')
+      }
+
       // Which email did we find?
       const emailInfo = forumUser.emails.find((e) => e.address === email)
       if (!emailInfo) {
