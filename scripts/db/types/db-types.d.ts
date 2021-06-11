@@ -18,4 +18,22 @@ interface DbConfiguration {
   POSTGRES_HOST: string
   POSTGRES_DATABASE: string
   POSTGRES_PORT?: string
+  MONGO_URI: string
+  MONGO_DB_NAME: string
+}
+
+/** Forum user */
+type ForumUser = {
+  _id: string
+  displayName: string
+  services: {
+    password: {
+      bcrypt: string
+    }
+  }
+  /**
+   * Email address is also stored in an email field, but as far as
+   * authentication is concerned, this is how we store emails
+   */
+  emails: { address: string; verified: boolean }[]
 }
