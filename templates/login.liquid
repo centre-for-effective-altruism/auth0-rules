@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {%- auth0:head -%}
+    <style>
+      :root {
+        --forum-instructions-width: 300px;
+        --forum-instructions-margin: 20px;
+      }
+      .ea-layout {
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        justify-content: center;
+        width: 100%;
+      }
+      @media (min-width: 768px) {
+        .ea-layout {
+          flex-direction: row;
+          padding: 80px 0;
+        }
+      }
+      .forum-instructions {
+        width: var(--forum-instructions-width);
+        margin-right: var(--forum-instructions-margin);
+        border-radius: 5px;
+        background-color: #dae0e2;
+        padding: 20px
+      }
+      .forum-instructions p {
+        margin-bottom: 1em;
+        line-height: 1.5;
+      }
+      .forum-instructions p:last-child {
+        margin-bottom: 0;
+      }
+      .forum-instructions-balancer {
+        display: none;
+      }
+      @media (min-width: 768px) {
+        .forum-instructions-balancer {
+          width: calc(var(--forum-instructions-width) + var(--forum-instructions-margin));
+        }
+      }
+    </style>
+    <!-- TODO; Favicon -->
+    <!-- TODO; Mobile -->
+  </head>
+  <body>
+    <!-- TODO; change this for prod, change dev to match prod -->
+    <div class="ea-layout">
+      <div class="forum-instructions">
+        <p>Welcome to our new login page!</p>
+        <!-- TODO; page on ea.org about accounts? -->
+        <p>
+          You now log in to the EA Forum using an EffectiveAltruism.org account,
+          which means you can use the same account for the Forum, EA Funds,
+          Giving What We Can, and EA Global applications.
+        </p>
+        <p>
+          It's no longer possible to login with your username. Please use your
+          email address instead. If you can't remember the email address you
+          signed up with, or you have any other issues, please get in touch with
+          <a href="https://forum.effectivealtruism.org/contact">support</a>.
+        </p>
+      </div>
+      <div class="widget-wrapper">
+        {%- auth0:widget -%}
+      </div>
+      <div class="forum-instructions-balancer"></div>
+    </div>
+  </body>
+</html>

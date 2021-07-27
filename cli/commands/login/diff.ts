@@ -1,0 +1,30 @@
+import auth0 from '../../lib/client'
+import { fs } from 'mz'
+import path from 'path'
+import { printScriptDiff } from '../../lib/utils'
+import { diffLines } from 'diff'
+
+export default async function run() {
+  const branding = auth0.branding
+  let existingTemplate
+  try {
+    existingTemplate = await branding.getUniversalLoginTemplate()
+  } catch (err) {
+    if (err.statusCode === 404) {
+      existingTemplate = ''
+    } else {
+      throw err
+    }
+  }
+  const newTemplate = (
+    await fs.readFile(path.join(__dirname, '../../../templates/login.liquid'))
+  ).toString()
+  const diff = diffLines(existingTemplate, newTemplate)
+  const upToDateTemplates = printScriptDiff(
+    [[{ name: 'Login' }, diff]],
+    'login page'
+  )
+  if (upToDateTemplates.length) {
+    console.log('Login template is up-to-date')
+  }
+}
