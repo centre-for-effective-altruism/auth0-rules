@@ -97,28 +97,32 @@
         background-color: #dae0e2;
         padding: 10px;
         border-radius: 5px;
-        margin-top: 20px;
         text-align: center;
+        position: relative;
+        z-index: 5;
       }
       @media (min-width: 480px) {
         .contact-us {
+          margin-top: 20px;
+          margin-bottom: 20px;
           width: 400px;
+        }
+      }
+      @media (min-width: 1070px) {
+        .contact-us {
+          margin-bottom: 0;
         }
       }
     </style>
     <script>
       function hideForumDetails() {
-        console.log('hello anyonehome')
         const details = document.getElementById("forum-instructions-details");
-        console.log('details', details)
         details.style.display = "none";
         const showMore = document.getElementById("forum-instructions-show-more");
         showMore.style.display = "block";
       }
       function showForumDetails() {
-        console.log('hello anyonehome')
         const details = document.getElementById("forum-instructions-details");
-        console.log('details', details)
         details.style.display = "block";
         const showMore = document.getElementById("forum-instructions-show-more");
         showMore.style.display = "none";
