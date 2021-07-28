@@ -10,7 +10,7 @@ program
 program
   .command('diff')
   .description(
-    'Diff locally defined login page text against those on the Auth0 tenant'
+    'Diff locally defined custom login page that on the Auth0 tenant'
   )
   .action(diff)
 

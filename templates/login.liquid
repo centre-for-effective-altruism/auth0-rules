@@ -2,6 +2,7 @@
 <html>
   <head>
     {%- auth0:head -%}
+    <link rel="shortcut icon" href="https://www.effectivealtruism.org/favicon-16x16.png">
     <style>
       :root {
         --forum-instructions-width: 300px;
@@ -128,14 +129,12 @@
         showMore.style.display = "none";
       }
     </script>
-    <!-- TODO; Favicon -->
   </head>
   <body>
     <div class="ea-layout {% if application.name contains "Forum" %}ea-layout-forum{% else %}ea-layout-contact{% endif %}">
       {% if application.name contains "Forum" %}
         <div class="forum-instructions">
           <p>Welcome to our new login page!</p>
-          <!-- TODO; page on ea.org about accounts? -->
           <div class="forum-instructions-details" id="forum-instructions-details">
             <div class="forum-instructions-details-text">
               <p>
