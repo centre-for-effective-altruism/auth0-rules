@@ -21,16 +21,22 @@
       }
       @media (min-width: 1070px) {
         .ea-layout {
+          padding: 80px 0;
+        }
+        .ea-layout-forum {
           flex-direction: row;
           align-items: flex-start;
-          padding: 80px 0;
+        }
+        .ea-layout-contact {
+          flex-direction: column;
+          align-items: center;
         }
       }
       .forum-instructions {
         width: 100%;
         border-radius: 5px;
         background-color: #dae0e2;
-        padding: 20px
+        padding: 20px;
       }
       @media (min-width: 480px) {
         .forum-instructions {
@@ -85,6 +91,20 @@
           width: calc(var(--forum-instructions-width) + var(--forum-instructions-margin));
         }
       }
+      .contact-us {
+        width: 100%;
+        height: calc(2em+5px);
+        background-color: #dae0e2;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 20px;
+        text-align: center;
+      }
+      @media (min-width: 480px) {
+        .contact-us {
+          width: 400px;
+        }
+      }
     </style>
     <script>
       function hideForumDetails() {
@@ -107,7 +127,7 @@
     <!-- TODO; Favicon -->
   </head>
   <body>
-    <div class="ea-layout">
+    <div class="ea-layout {% if application.name contains "Forum" %}ea-layout-forum{% else %}ea-layout-contact{% endif %}">
       {% if application.name contains "Forum" %}
         <div class="forum-instructions">
           <p>Welcome to our new login page!</p>
@@ -141,6 +161,10 @@
       </div>
       {% if application.name contains "Forum" %}
         <div class="forum-instructions-balancer"></div>
+      {% else %}
+        <div class="contact-us">
+          Having issues? <strong><a href="https://centreforeffectivealtruism.org/contact">Get in touch</a></strong>.
+        </div>
       {% endif %}
     </div>
   </body>
