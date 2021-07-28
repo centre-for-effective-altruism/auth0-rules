@@ -9,65 +9,139 @@
       }
       .ea-layout {
         display: flex;
-        flex-direction: column-reverse;
-        align-items: flex-start;
+        width: auto;
+        flex-direction: column;
         justify-content: center;
-        width: 100%;
+        align-items: center;
       }
-      @media (min-width: 768px) {
+      @media (min-width: 480px) {
+        .ea-layout {
+          width: 100%;
+        }
+      }
+      @media (min-width: 1070px) {
         .ea-layout {
           flex-direction: row;
+          align-items: flex-start;
           padding: 80px 0;
         }
       }
       .forum-instructions {
-        width: var(--forum-instructions-width);
-        margin-right: var(--forum-instructions-margin);
+        width: 100%;
         border-radius: 5px;
         background-color: #dae0e2;
         padding: 20px
+      }
+      @media (min-width: 480px) {
+        .forum-instructions {
+          width: 400px;
+        }
+      }
+      @media (min-width: 1070px) {
+        .forum-instructions {
+          margin-right: var(--forum-instructions-margin);
+          width: var(--forum-instructions-width);
+        }
       }
       .forum-instructions p {
         margin-bottom: 1em;
         line-height: 1.5;
       }
-      .forum-instructions p:last-child {
+      .forum-instructions-details-text p:last-child {
         margin-bottom: 0;
       }
-      .forum-instructions-balancer {
+      .forum-instructions-hide-this {
+        margin-top: 1em;
+        margin-bottom: 0;
+      }
+      @media (min-width: 1070px) {
+        .forum-instructions-hide-this {
+          display: none;
+        }
+      }
+      .forum-instructions-show-more {
+        margin-top: 1em;
+        margin-bottom: 0;
         display: none;
       }
-      @media (min-width: 768px) {
+      .widget-wrapper {
+        width: 100%;
+      }
+      @media (min-width: 480px) {
+        .widget-wrapper {
+          width: 400px;
+        }
+      }
+      @media (max-width: 480px) {
+        ._prompt-box-outer {
+          width: 100vw;
+        }
+      }
+      .forum-instructions-balancer {
+        visibility: hidden;
+      }
+      @media (min-width: 1070px) {
         .forum-instructions-balancer {
           width: calc(var(--forum-instructions-width) + var(--forum-instructions-margin));
         }
       }
     </style>
+    <script>
+      function hideForumDetails() {
+        console.log('hello anyonehome')
+        const details = document.getElementById("forum-instructions-details");
+        console.log('details', details)
+        details.style.display = "none";
+        const showMore = document.getElementById("forum-instructions-show-more");
+        showMore.style.display = "block";
+      }
+      function showForumDetails() {
+        console.log('hello anyonehome')
+        const details = document.getElementById("forum-instructions-details");
+        console.log('details', details)
+        details.style.display = "block";
+        const showMore = document.getElementById("forum-instructions-show-more");
+        showMore.style.display = "none";
+      }
+    </script>
     <!-- TODO; Favicon -->
-    <!-- TODO; Mobile -->
   </head>
   <body>
-    <!-- TODO; change this for prod, change dev to match prod -->
     <div class="ea-layout">
-      <div class="forum-instructions">
-        <p>Welcome to our new login page!</p>
-        <!-- TODO; page on ea.org about accounts? -->
-        <p>
-          You now log in to the EA Forum using an EffectiveAltruism.org account,
-          which means you can use the same account for the Forum, EA Funds,
-          Giving What We Can, and EA Global applications.
-        </p>
-        <p>
-          It's no longer possible to login with your username. Please use your
-          email address instead. If you can't remember the email address you
-          signed up with, or you have any other issues, please get in touch with
-          <a href="https://forum.effectivealtruism.org/contact">support</a>.
-        </p>
-      </div>
+      {% if application.name contains "Forum" %}
+        <div class="forum-instructions">
+          <p>Welcome to our new login page!</p>
+          <!-- TODO; page on ea.org about accounts? -->
+          <div class="forum-instructions-details" id="forum-instructions-details">
+            <div class="forum-instructions-details-text">
+              <p>
+                You <a href="https://forum.effectivealtruism.org/posts/AhzgWBc9hDF8grnGf/forum-update-new-features-june-2021#Unified_logins_for_effectivealtruism_org">
+                now log in</a> to the EA Forum using an EffectiveAltruism.org account,
+                which means you can use the same account for the Forum, EA Funds,
+                Giving What We Can, and EA Global applications.
+              </p>
+              <p>
+                It's no longer possible to login with your username. Please use your
+                email address instead. If you can't remember the email address you
+                signed up with, or you have any other issues, please get in touch with
+                <a href="https://forum.effectivealtruism.org/contact">support</a>.
+              </p>
+            </div>
+            <div class="forum-instructions-hide-this">
+              <strong><a onclick="hideForumDetails()">Hide this</a></strong>
+            </div>
+          </div>
+          <div class="forum-instructions-show-more" id="forum-instructions-show-more">
+            <strong><a onclick="showForumDetails()">Show more</a></strong>
+          </div>
+        </div>
+      {% endif %}
       <div class="widget-wrapper">
         {%- auth0:widget -%}
       </div>
-      <div class="forum-instructions-balancer"></div>
+      {% if application.name contains "Forum" %}
+        <div class="forum-instructions-balancer"></div>
+      {% endif %}
     </div>
   </body>
 </html>
