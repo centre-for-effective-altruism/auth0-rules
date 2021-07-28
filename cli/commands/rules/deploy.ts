@@ -4,7 +4,7 @@ import { exit } from 'process'
 import auth0 from '../../lib/client'
 import {
   getAllRules,
-  generateScript,
+  generateCode,
   formatUpdateRuleMessage,
 } from '../../lib/utils'
 import { RULE_MANIFEST } from '../../manifests'
@@ -39,7 +39,7 @@ export default async function run() {
     let order = getLargestOrder(Rules)
     for (const ruleDef of RULE_MANIFEST) {
       // generate the final script
-      const script = await generateScript(ruleDef, 'rules')
+      const script = await generateCode(ruleDef, 'rules')
       // check if the rule exists
       const existingRule = Rules.find((Rule) => Rule.name === ruleDef.name)
       if (existingRule?.id) {

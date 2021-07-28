@@ -1,6 +1,6 @@
 import { red, green } from 'chalk'
 import auth0 from '../../lib/client'
-import { generateScript, getAllConnections } from '../../lib/utils'
+import { generateCode, getAllConnections } from '../../lib/utils'
 import { DB_MANIFEST } from '../../manifests'
 import { CONNECTION_NAME } from '../../lib/db-utils'
 import { exit } from 'process'
@@ -23,7 +23,7 @@ export default async function run() {
       await Promise.all(
         DB_MANIFEST.map(async (scriptDef) => [
           scriptDef.name,
-          await generateScript(scriptDef, 'db'),
+          await generateCode(scriptDef, 'db'),
         ])
       )
     )

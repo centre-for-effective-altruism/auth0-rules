@@ -8,7 +8,7 @@ program.command('db', 'manage database action scripts', {
   executableFile: path.join(__dirname, 'commands/db/index.js'),
 })
 // TODO; change a bunch of text
-program.command('login', 'manage custom text on the login page', {
+program.command('login', 'manage the custom login page', {
   executableFile: path.join(__dirname, 'commands/login/index.js'),
 })
 

@@ -1,7 +1,7 @@
 import auth0 from '../../lib/client'
 import { fs } from 'mz'
 import path from 'path'
-import { printScriptDiff } from '../../lib/utils'
+import { printCodeDiff } from '../../lib/utils'
 import { diffLines } from 'diff'
 
 export default async function run() {
@@ -20,10 +20,7 @@ export default async function run() {
     await fs.readFile(path.join(__dirname, '../../../templates/login.liquid'))
   ).toString()
   const diff = diffLines(existingTemplate, newTemplate)
-  const upToDateTemplates = printScriptDiff(
-    [[{ name: 'Login' }, diff]],
-    'login page'
-  )
+  const upToDateTemplates = printCodeDiff([[{ name: 'Login' }, diff]], 'login')
   if (upToDateTemplates.length) {
     console.log('Login template is up-to-date')
   }
