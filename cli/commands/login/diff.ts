@@ -8,7 +8,7 @@ export default async function run() {
   const branding = auth0.branding
   let existingTemplate
   try {
-    existingTemplate = await branding.getUniversalLoginTemplate()
+    existingTemplate = (await branding.getUniversalLoginTemplate()).body
   } catch (err) {
     if (err.statusCode === 404) {
       existingTemplate = ''

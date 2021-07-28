@@ -3,11 +3,11 @@ export {}
 declare module 'auth0' {
   interface ManagementClient<A = AppMetadata, U = UserMetadata> {
     branding: {
-      getUniversalLoginTemplate: () => Promise<string>
+      getUniversalLoginTemplate: () => Promise<{ body: string }>
       setUniversalLoginTemplate: (
         params: undefined,
         data: { template: string }
-      ) => Promise<{ never: never }>
+      ) => Promise<{ never: never } | void>
     }
   }
 }
