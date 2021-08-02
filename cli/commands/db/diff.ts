@@ -1,11 +1,7 @@
 import { Change, diffLines } from 'diff'
 import { DB_MANIFEST } from '../../manifests'
 import { CONNECTION_NAME } from '../../lib/db-utils'
-import {
-  generateScript,
-  getAllConnections,
-  printScriptDiff,
-} from '../../lib/utils'
+import { generateCode, getAllConnections, printCodeDiff } from '../../lib/utils'
 
 export default async function run() {
   // NB: Connection is a term-of-art in Auth0 for an identity provider,
@@ -17,7 +13,7 @@ export default async function run() {
   }
   const diffs: [DBActionScriptDefinition, Change[]][] = []
   for (const scriptDef of DB_MANIFEST) {
-    const ourScript = await generateScript(scriptDef, 'db')
+    const ourScript = await generateCode(scriptDef, 'db')
     const existingScript = dbConnection.options.customScripts?.[scriptDef.name]
     if (!existingScript) {
       throw new Error(
@@ -30,7 +26,7 @@ export default async function run() {
     }
     diffs.push([scriptDef, diffLines(existingScript, ourScript)])
   }
-  const upToDateScripts = printScriptDiff(diffs, 'db')
+  const upToDateScripts = printCodeDiff(diffs, 'db')
   if (DB_MANIFEST.length === upToDateScripts.length) {
     console.log('Database action scripts are up-to-date')
   }
