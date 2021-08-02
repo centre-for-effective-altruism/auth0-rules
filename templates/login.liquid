@@ -54,6 +54,12 @@
         margin-bottom: 1em;
         line-height: 1.5;
       }
+      #forum-instructions-details.open {
+        display: block;
+      }
+      #forum-instructions-details.closed {
+        display: none;
+      }
       .forum-instructions-details-text p:last-child {
         margin-bottom: 0;
       }
@@ -66,10 +72,15 @@
           display: none;
         }
       }
-      .forum-instructions-show-more {
+      #forum-instructions-show-more {
         margin-top: 1em;
         margin-bottom: 0;
+      }
+      #forum-instructions-show-more.closed {
         display: none;
+      }
+      #forum-instructions-show-more.open {
+        display: block;
       }
       .widget-wrapper {
         width: 100%;
@@ -118,15 +129,19 @@
     <script>
       function hideForumDetails() {
         const details = document.getElementById("forum-instructions-details");
-        details.style.display = "none";
+        details.classList.remove('open');
+        details.classList.add('closed');
         const showMore = document.getElementById("forum-instructions-show-more");
-        showMore.style.display = "block";
+        showMore.classList.remove('closed');
+        showMore.classList.add('open');
       }
       function showForumDetails() {
         const details = document.getElementById("forum-instructions-details");
-        details.style.display = "block";
+        details.classList.remove('closed');
+        details.classList.add('open');
         const showMore = document.getElementById("forum-instructions-show-more");
-        showMore.style.display = "none";
+        showMore.classList.remove('open');
+        showMore.classList.add('closed');
       }
     </script>
   </head>
@@ -135,7 +150,7 @@
       {% if application.name contains "Forum" %}
         <div class="forum-instructions">
           <p>Welcome to our new login page!</p>
-          <div class="forum-instructions-details" id="forum-instructions-details">
+          <div class="open" id="forum-instructions-details">
             <div class="forum-instructions-details-text">
               <p>
                 You <a href="https://forum.effectivealtruism.org/posts/AhzgWBc9hDF8grnGf/forum-update-new-features-june-2021#Unified_logins_for_effectivealtruism_org">
@@ -154,7 +169,7 @@
               <strong><a onclick="hideForumDetails()">Hide this</a></strong>
             </div>
           </div>
-          <div class="forum-instructions-show-more" id="forum-instructions-show-more">
+          <div class="closed" id="forum-instructions-show-more">
             <strong><a onclick="showForumDetails()">Show more</a></strong>
           </div>
         </div>

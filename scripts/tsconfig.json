@@ -6,5 +6,5 @@
     "target": "ES2020"
   },
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts", "**/*.d.ts", "**/*.liquid"]
+  "include": ["**/*.ts", "**/*.d.ts"]
 }
