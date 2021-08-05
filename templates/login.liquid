@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {%- auth0:head -%}
+    <link rel="shortcut icon" href="https://www.effectivealtruism.org/favicon-16x16.png">
+    <style>
+      :root {
+        --forum-instructions-width: 300px;
+        --forum-instructions-margin: 20px;
+      }
+      .ea-layout {
+        display: flex;
+        width: auto;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      @media (min-width: 480px) {
+        .ea-layout {
+          width: 100%;
+        }
+      }
+      @media (min-width: 1070px) {
+        .ea-layout {
+          padding: 80px 0;
+        }
+        .ea-layout-forum {
+          flex-direction: row;
+          align-items: flex-start;
+        }
+        .ea-layout-contact {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+      .forum-instructions {
+        width: 100%;
+        border-radius: 5px;
+        background-color: #dae0e2;
+        padding: 20px;
+      }
+      @media (min-width: 480px) {
+        .forum-instructions {
+          width: 400px;
+        }
+      }
+      @media (min-width: 1070px) {
+        .forum-instructions {
+          margin-right: var(--forum-instructions-margin);
+          width: var(--forum-instructions-width);
+        }
+      }
+      .forum-instructions p {
+        margin-bottom: 1em;
+        line-height: 1.5;
+      }
+      #forum-instructions-details.open {
+        display: block;
+      }
+      #forum-instructions-details.closed {
+        display: none;
+      }
+      .forum-instructions-details-text p:last-child {
+        margin-bottom: 0;
+      }
+      .forum-instructions-hide-this {
+        margin-top: 1em;
+        margin-bottom: 0;
+      }
+      @media (min-width: 1070px) {
+        .forum-instructions-hide-this {
+          display: none;
+        }
+      }
+      #forum-instructions-show-more {
+        margin-top: 1em;
+        margin-bottom: 0;
+      }
+      #forum-instructions-show-more.closed {
+        display: none;
+      }
+      #forum-instructions-show-more.open {
+        display: block;
+      }
+      .widget-wrapper {
+        width: 100%;
+      }
+      @media (min-width: 480px) {
+        .widget-wrapper {
+          width: 400px;
+        }
+      }
+      @media (max-width: 480px) {
+        ._prompt-box-outer {
+          width: 100vw;
+        }
+      }
+      .forum-instructions-balancer {
+        visibility: hidden;
+      }
+      @media (min-width: 1070px) {
+        .forum-instructions-balancer {
+          width: calc(var(--forum-instructions-width) + var(--forum-instructions-margin));
+        }
+      }
+      .contact-us {
+        width: 100%;
+        height: calc(2em+5px);
+        background-color: #dae0e2;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        position: relative;
+        z-index: 5;
+      }
+      @media (min-width: 480px) {
+        .contact-us {
+          margin-top: 20px;
+          margin-bottom: 20px;
+          width: 400px;
+        }
+      }
+      @media (min-width: 1070px) {
+        .contact-us {
+          margin-bottom: 0;
+        }
+      }
+    </style>
+    <script>
+      function hideForumDetails() {
+        const details = document.getElementById("forum-instructions-details");
+        details.classList.remove('open');
+        details.classList.add('closed');
+        const showMore = document.getElementById("forum-instructions-show-more");
+        showMore.classList.remove('closed');
+        showMore.classList.add('open');
+      }
+      function showForumDetails() {
+        const details = document.getElementById("forum-instructions-details");
+        details.classList.remove('closed');
+        details.classList.add('open');
+        const showMore = document.getElementById("forum-instructions-show-more");
+        showMore.classList.remove('open');
+        showMore.classList.add('closed');
+      }
+    </script>
+  </head>
+  <body>
+    <div class="ea-layout {% if application.name contains "Forum" %}ea-layout-forum{% else %}ea-layout-contact{% endif %}">
+      {% if application.name contains "Forum" %}
+        <div class="forum-instructions">
+          <p>Welcome to our new login page!</p>
+          <div class="open" id="forum-instructions-details">
+            <div class="forum-instructions-details-text">
+              <p>
+                You <a href="https://forum.effectivealtruism.org/posts/AhzgWBc9hDF8grnGf/forum-update-new-features-june-2021#Unified_logins_for_effectivealtruism_org">
+                now log in</a> to the EA Forum using an EffectiveAltruism.org account,
+                which means you can use the same account for the Forum, EA Funds,
+                Giving What We Can, and EA Global applications.
+              </p>
+              <p>
+                It's no longer possible to login with your username. Please use your
+                email address instead. If you can't remember the email address you
+                signed up with, or you have any other issues, please get in touch with
+                <a href="https://forum.effectivealtruism.org/contact">support</a>.
+              </p>
+            </div>
+            <div class="forum-instructions-hide-this">
+              <strong><a onclick="hideForumDetails()">Hide this</a></strong>
+            </div>
+          </div>
+          <div class="closed" id="forum-instructions-show-more">
+            <strong><a onclick="showForumDetails()">Show more</a></strong>
+          </div>
+        </div>
+      {% endif %}
+      <div class="widget-wrapper">
+        {%- auth0:widget -%}
+      </div>
+      {% if application.name contains "Forum" %}
+        <div class="forum-instructions-balancer"></div>
+      {% else %}
+        <div class="contact-us">
+          Having issues? <strong><a href="https://centreforeffectivealtruism.org/contact">Get in touch</a></strong>.
+        </div>
+      {% endif %}
+    </div>
+  </body>
+</html>

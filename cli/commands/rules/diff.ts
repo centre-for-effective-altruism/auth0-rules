@@ -1,4 +1,4 @@
-import { generateScript, getAllRules, printScriptDiff } from '../../lib/utils'
+import { generateCode, getAllRules, printCodeDiff } from '../../lib/utils'
 import { Change, diffLines } from 'diff'
 import { RULE_MANIFEST } from '../../manifests'
 import { Rule } from 'auth0'
@@ -25,11 +25,11 @@ export default async function run() {
       missingRules.push(ruleDef)
       continue
     }
-    const script = await generateScript(ruleDef, 'rules')
+    const script = await generateCode(ruleDef, 'rules')
     diffs.push([ruleDef, diffLines(Rule.script, script)])
   }
   // print the diffs
-  const upToDateRules = printScriptDiff(diffs, 'rules')
+  const upToDateRules = printCodeDiff(diffs, 'rules')
   if (upToDateRules.length) {
     console.log(`\n[[ Up-to-date rules ]]`)
     console.log(

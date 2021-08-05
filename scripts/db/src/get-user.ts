@@ -72,19 +72,27 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       await mongoClient.connect()
 
       // Query the users collection for someone with our email
-      const forumUser = await mongoClient
+      const matchingUsers = await mongoClient
         .db(MONGO_DB_NAME)
         .collection<ForumUser>('users')
-        .findOne({ 'emails.address': email })
+        .find({ 'emails.address': email })
+        .collation({ locale: 'en', strength: 2 })
+        .toArray()
 
       await mongoClient.close()
 
-      if (!forumUser) {
+      if (!matchingUsers.length) {
         return null
       }
+      if (matchingUsers.length > 1) {
+        throw new Error('More than one user with this email address')
+      }
+      const forumUser = matchingUsers[0]
 
       // Which email did we find?
-      const emailInfo = forumUser.emails.find((e) => e.address === email)
+      const emailInfo = forumUser.emails.find(
+        (e) => e.address.toLowerCase() === email.toLowerCase()
+      )
       if (!emailInfo) {
         // This should never happen, as they were returned by mongo because that
         // field matched
