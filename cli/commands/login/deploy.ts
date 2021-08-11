@@ -8,10 +8,11 @@ export default async function run() {
     const newTemplate = (
       await fs.readFile(path.join(__dirname, '../../../templates/login.liquid'))
     ).toString()
-    const result = await branding.setUniversalLoginTemplate(undefined, {
+    await branding.setUniversalLoginTemplate(undefined, {
       template: newTemplate,
     })
   } catch (err) {
     console.log('err', err)
+    process.exit(1)
   }
 }
