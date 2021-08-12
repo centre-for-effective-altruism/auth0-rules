@@ -157,7 +157,6 @@
     {% endif %}
   {% endcapture %}
   <body>
-    <p>"{{ is_forum_login }}"</p>
     <div class="ea-layout {% if is_forum_login contains "true" %}ea-layout-forum{% else %}ea-layout-contact{% endif %}">
       {% if is_forum_login contains "true" %}
         <div class="forum-instructions">
