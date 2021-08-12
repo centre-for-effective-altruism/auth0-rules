@@ -145,9 +145,21 @@
       }
     </script>
   </head>
+  {% comment %}
+    Pretty freaking hacky - there's surely a better way to save conditional
+    variables in liquid, but I don't know it
+  {% endcomment %}
+  {% capture is_forum_login %}
+    {% if application.name contains "Forum" and prompt.name == "login" %}
+      true
+    {% else %}
+      false
+    {% endif %}
+  {% endcapture %}
   <body>
-    <div class="ea-layout {% if application.name contains "Forum" %}ea-layout-forum{% else %}ea-layout-contact{% endif %}">
-      {% if application.name contains "Forum" %}
+    <p>"{{ is_forum_login }}"</p>
+    <div class="ea-layout {% if is_forum_login contains "true" %}ea-layout-forum{% else %}ea-layout-contact{% endif %}">
+      {% if is_forum_login contains "true" %}
         <div class="forum-instructions">
           <p>Welcome to our new login page!</p>
           <div class="open" id="forum-instructions-details">
@@ -177,7 +189,7 @@
       <div class="widget-wrapper">
         {%- auth0:widget -%}
       </div>
-      {% if application.name contains "Forum" %}
+      {% if is_forum_login contains "true" %}
         <div class="forum-instructions-balancer"></div>
       {% else %}
         <div class="contact-us">
