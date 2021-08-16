@@ -89,7 +89,7 @@ rules.
 
 ## Usage
 
-Sync with Auth0 using `yarn cli [rules|db]`
+Sync with Auth0 using `yarn cli [rules|db|login]`
 
 ```
 Usage: yarn cli rules [options] [command]
@@ -109,7 +109,7 @@ Commands:
 #### `deploy`
 
 ```sh
-yarn [rules|db] deploy
+yarn [rules|db|login] deploy
 ```
 
 Deploys all scripts in the manifest to Auth0.
@@ -122,7 +122,7 @@ are in the manifest.
 #### `diff`
 
 ```
-yarn [rules|db] diff
+yarn [rules|db|login] diff
 ```
 
 Diffs locally defined scripts against those defined on the Auth0 tenant.
@@ -229,8 +229,8 @@ Defining the script itself (as a file in e.g. `./scripts/rules/src`)
 
 - [Registering the script in the manifest](#the-manifest) (`./src/manifests`)
 
-Scripts are defined in `./scripts/[rules|db]/src`. Each script lives in its own
-file. They are written as Typescript files (`.ts` extension).
+Scripts are defined in `./scripts/[rules|db|login]/src`. Each script lives in
+its own file. They are written as Typescript files (`.ts` extension).
 
 ### Basic rule structure
 

@@ -3,6 +3,41 @@
   <head>
     {%- auth0:head -%}
     <link rel="shortcut icon" href="https://www.effectivealtruism.org/favicon-16x16.png">
+    {% if application.name contains "Giving" %}
+    <style>
+      /* GWWC COLORS */
+      :root {
+        --page-background-color: white;
+        --primary-color:  #6c0000;
+        --action-primary-color: #6c0000;
+      }
+      /* setting above variables should be enough, but somehow auth0 also decides to add a second css line with the colors hardcoded, so we need to mark these vars as important */
+      body {
+        background: var(--page-background-color) !important;
+      }
+      /* Sign up button and accept access buttons */
+      button[value="default"], button[value="accept"] {
+        background-color: var(--primary-color) !important;
+      }
+      /* GWWC LOGO: hide img + abuse h1 to show GWWC logo */
+      #prompt-logo-center {
+        display: none;
+      }
+      h1 {
+        text-indent: -9999999px;
+        font-size: 0px !important;
+      }
+      h1:after {
+        content: "";
+        display: block;
+        width: 120px;
+        height: 120px;
+        margin: var(--logo-alignment);
+        background-image: url(https://res.cloudinary.com/cea/image/upload/v1629107364/GWWC_square_logo.png);
+        background-size: contain;
+      }
+    </style>
+    {% endif %}
     <style>
       :root {
         --forum-instructions-width: 300px;
