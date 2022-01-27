@@ -102,9 +102,9 @@
   integrity sha512-9LSCqKbPxmOI294tcOnTMXnnfLcabgHw7ymmSqTNdDGiN7orBr/Gpi0G4r/tNktuRnZHF+QEW3LysXKfsVbN1A==
 
 "@types/auth0@^2.33.4":
-  version "2.33.4"
-  resolved "https://registry.yarnpkg.com/@types/auth0/-/auth0-2.33.4.tgz#5c1b7088107e823b3e262a9f5ef8debbaf35fce7"
-  integrity sha512-myVVdU9NVRvlFfiTBtqY7dEtfE2x3J/ziRliOYAKHE21CWBE3shOTMqnygXHwuEus2JuoY43xkJQLfCepo+N5w==
+  version "2.34.10"
+  resolved "https://registry.yarnpkg.com/@types/auth0/-/auth0-2.34.10.tgz#6ad475650f4723986ca11a02f4590a10e8245753"
+  integrity sha512-MgNPL7hEwWTPPmq9zin10kTTpdGvZLgpz7sBVK3YPyqasDGtuqJs6MiLkroKWhQq4W6lVFUQ52Wuo5QUomuOxA==
 
 "@types/bcrypt@^3.0.1":
   version "3.0.1"

@@ -3,16 +3,37 @@ import path from 'path'
 import auth0 from '../../lib/client'
 
 export default async function run() {
-  const branding = auth0.branding
   try {
-    const newTemplate = (
-      await fs.readFile(path.join(__dirname, '../../../templates/login.liquid'))
-    ).toString()
-    await branding.setUniversalLoginTemplate(undefined, {
-      template: newTemplate,
-    })
+    await deployLoginTemplate()
+    await deployCustomText()
   } catch (err) {
     console.log('err', err)
     process.exit(1)
   }
+}
+
+async function deployLoginTemplate() {
+  const branding = auth0.branding
+  const newTemplate = (
+    await fs.readFile(path.join(__dirname, '../../../templates/login.liquid'))
+  ).toString()
+  await branding.setUniversalLoginTemplate(undefined, {
+    template: newTemplate,
+  })
+}
+
+async function deployCustomText() {
+  const customText = JSON.parse(
+    (
+      await fs.readFile(
+        path.join(__dirname, '../../../templates/custom-text.json')
+      )
+    ).toString()
+  )
+
+  auth0.prompts.updateCustomTextByLanguage({
+    prompt: 'signup',
+    language: 'en',
+    body: customText,
+  })
 }
