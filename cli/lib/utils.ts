@@ -213,3 +213,24 @@ export function printCodeDiff<
   }
   return upToDateScripts
 }
+
+type diffObject = { [key: string]: string | diffObject }
+
+/**
+ * Deep sorts an object of string values
+ *
+ * For example: deepSortObject({test: {x: 'value', a: 'other value'}})
+ */
+export function deepSortObject(obj: diffObject) {
+  return Object.keys(obj)
+    .sort()
+    .reduce(function (result, key) {
+      const x = obj[key]
+      if (typeof x === 'object') {
+        result[key] = deepSortObject(x)
+      } else {
+        result[key] = x
+      }
+      return result
+    }, {} as diffObject)
+}
