@@ -1,5 +1,5 @@
 {
   "signup": {
-    "auth0-users-validation": "Something went wrong, please try resetting your password or contacting support"
+    "auth0-users-validation": "Something went wrong! You may already have an account, try logging in, resetting your password, or contacting support."
   }
 }
