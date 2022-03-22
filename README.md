@@ -565,3 +565,7 @@ username and password authentication.
 
 We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant
 when merging to `master` or `dev`.
+
+To check that deployment worked, check the workflow run of
+[Gitub Actions](https://github.com/centre-for-effective-altruism/auth0-rules/actions)
+and verify that the diffs are as expected.
