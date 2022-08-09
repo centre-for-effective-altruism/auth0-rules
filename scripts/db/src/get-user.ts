@@ -44,7 +44,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
   //     callback(new Error("my error message"));
   try {
     /** Get required dependencies */
-    const { Client: PGClient } = require('pg@7.17.1')
+    const { Client: PGClient } = require('pg@8.7.1')
     const { MongoClient } = require('mongodb@3.1.4')
 
     /**
