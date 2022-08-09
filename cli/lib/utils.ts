@@ -188,7 +188,7 @@ export function printCodeDiff<
   let changesHeaderPrinted = false
   const upToDateScripts: T[] = []
   for (const [scriptDef, changes] of diffs) {
-    if (changes.every((part) => !part.added || part.removed)) {
+    if (changes.every((part) => !(part.added || part.removed))) {
       upToDateScripts.push(scriptDef)
       continue
     }
