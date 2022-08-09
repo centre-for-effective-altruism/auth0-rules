@@ -50,7 +50,7 @@ async function login(
       POSTGRES_PORT,
       MONGO_URI,
       MONGO_DB_NAME,
-    } = (configuration as unknown) as DbConfiguration
+    } = configuration as unknown as DbConfiguration
 
     /**
      * Logic in this function tries to match:
@@ -179,6 +179,6 @@ async function login(
     }
     return callback(new WrongUsernameOrPasswordError(email))
   } catch (err) {
-    return callback(err)
+    return callback(err as Error)
   }
 }

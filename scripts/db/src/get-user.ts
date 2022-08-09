@@ -60,7 +60,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       POSTGRES_PORT,
       MONGO_URI,
       MONGO_DB_NAME,
-    } = (configuration as unknown) as DbConfiguration
+    } = configuration as unknown as DbConfiguration
 
     /**
      * Logic in this function tries to match:
@@ -159,6 +159,6 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
     }
     return callback(null)
   } catch (err) {
-    return callback(err)
+    return callback(err as Error)
   }
 }

@@ -37,7 +37,7 @@ export default async function run() {
     await auth0.updateConnection({ id: dbConnection.id }, { options })
     console.log(`Scripts updated ${green(`\u2713`)}`)
   } catch (err) {
-    console.error(red(err.message))
+    console.error(red((err as Error).message))
     exit(1)
   }
 }

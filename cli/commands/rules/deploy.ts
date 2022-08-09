@@ -64,7 +64,7 @@ export default async function run() {
       order = getNextOrder(order, Rules)
     }
   } catch (err) {
-    console.error(red(err.message))
+    console.error(red((err as Error).message))
     exit(1)
   }
 }
