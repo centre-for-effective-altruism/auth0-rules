@@ -130,6 +130,13 @@ async function login(
         port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
         ssl: TEMPLATE_DATA.pgShouldSsl,
       }
+
+      /**
+       * NOTE: Temporary fix for Auth0 bug August 2022
+       * Should be reverted ASAP
+       */
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
       /** Construct a postgres client and connect to the server */
       const pgClient: PGClient = new PGClient(pgConnectionInfo)
       await pgClient.connect()
@@ -148,6 +155,8 @@ async function login(
 
       /** Close the connection */
       await pgClient.end()
+
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
 
       if (!Person) {
         return null
