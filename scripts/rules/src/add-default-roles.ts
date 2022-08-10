@@ -50,9 +50,10 @@ async function addDefaultRoles(
     // GTFO
     callback(null, user, context)
   } catch (error) {
+    const err = error as Error
     callback(
       new Error(
-        `Failed to set default role: ${error.message || JSON.stringify(error)}`
+        `Failed to set default role: ${err.message || JSON.stringify(error)}`
       )
     )
   }
