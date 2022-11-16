@@ -134,6 +134,9 @@ async function login(
       /**
        * NOTE: Temporary fix for Auth0 bug August 2022
        * Should be reverted ASAP
+       *
+       * Update Nov 2022: Auth0 told me the bug is fixed so I tried
+       * reverting and it broke - the bug is very much not fixed :(
        */
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
