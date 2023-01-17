@@ -20,7 +20,7 @@ async function diffLoginTemplate() {
   try {
     existingTemplate = (await branding.getUniversalLoginTemplate()).body
   } catch (err) {
-    if (err.statusCode === 404) {
+    if ((err as { statusCode?: number }).statusCode === 404) {
       existingTemplate = ''
     } else {
       throw err

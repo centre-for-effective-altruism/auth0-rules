@@ -13,8 +13,8 @@
     "build:scripts": "yarn tsc -p scripts/tsconfig.json",
     "build:scripts:watch": "yarn build:scripts --watch",
     "cli": "node -r dotenv/config dist/index",
-    "toc": "doctoc --maxlevel 3 --title '## Contents' README.md",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "toc": "doctoc --maxlevel 3 --title '## Contents' README.md"
   },
   "lint-staged": {
     "README.md": [
@@ -26,13 +26,13 @@
     ]
   },
   "dependencies": {
-    "auth0": "^2.35.1",
+    "auth0": "2.42.0",
     "chalk": "^4.1.0",
     "diff": "^5.0.0",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.21",
     "mz": "^2.7.0",
-    "pg": "7.17.1"
+    "pg": "8.7.1"
   },
   "devDependencies": {
     "@tepez/auth0-rules-types": "^0.3.1",
@@ -43,7 +43,7 @@
     "@types/mongodb": "^3.6.12",
     "@types/mz": "^2.7.3",
     "@types/node": "^14.14.37",
-    "@types/pg": "^7.14.11",
+    "@types/pg": "^8.6.5",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
     "commander": "^7.2.0",

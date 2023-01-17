@@ -44,7 +44,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
   //     callback(new Error("my error message"));
   try {
     /** Get required dependencies */
-    const { Client: PGClient } = require('pg@7.17.1')
+    const { Client: PGClient } = require('pg@8.7.1')
     const { MongoClient } = require('mongodb@3.1.4')
 
     /**
@@ -60,7 +60,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
       POSTGRES_PORT,
       MONGO_URI,
       MONGO_DB_NAME,
-    } = (configuration as unknown) as DbConfiguration
+    } = configuration as unknown as DbConfiguration
 
     /**
      * Logic in this function tries to match:
@@ -119,6 +119,16 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
         port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
         ssl: TEMPLATE_DATA.pgShouldSsl,
       }
+
+      /**
+       * NOTE: Temporary fix for Auth0 bug August 2022
+       * Should be reverted ASAP
+       *
+       * Update Nov 2022: Auth0 told me the bug is fixed so I tried
+       * reverting and it broke - the bug is very much not fixed :(
+       */
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
       /** Construct a postgres client and connect to the server */
       const pgClient: PGClient = new PGClient(pgConnectionInfo)
       await pgClient.connect()
@@ -136,6 +146,8 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
 
       /** Close the connection */
       await pgClient.end()
+
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
 
       if (!Person) {
         return null
@@ -159,6 +171,6 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
     }
     return callback(null)
   } catch (err) {
-    return callback(err)
+    return callback(err as Error)
   }
 }

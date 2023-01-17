@@ -51,7 +51,13 @@ jobs:
       - name: Build CLI and rule definitions
         run: yarn build
 
+      - name: Diff changes
+        env:
+          TOKEN_NAMESPACE: ${{ secrets.TOKEN_NAMESPACE }}
+        run: yarn cli rules diff && yarn cli db diff && yarn cli login diff
+
       - name: Deploy
         env:
           TOKEN_NAMESPACE: ${{ secrets.TOKEN_NAMESPACE }}
-        run: yarn cli rules deploy && yarn cli db deploy && yarn cli login deploy
+        run:
+          yarn cli rules deploy && yarn cli db deploy && yarn cli login deploy

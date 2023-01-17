@@ -1,4 +1,3 @@
-import { Client as PGClient, ConnectionConfig as PGConnectionConfig } from 'pg'
 import { compare } from 'bcrypt'
 import { createHash as createHash_ } from 'crypto'
 import { MongoClient } from 'mongodb'
@@ -8,19 +7,6 @@ import {
   DbScriptCallback,
   ForumUser,
 } from '../types/db-types'
-
-/**
- * Parfit DB Person, as returned by the written query
- *
- * It is up to the programmer to keep this up to date if the query changes
- */
-type PersonResult = {
-  id: string
-  email: string
-  first_name: string
-  last_name: string
-  password: string
-}
 
 /** Authenticates a user against existing user databases */
 async function login(
@@ -34,7 +20,7 @@ async function login(
     const { createHash } = require('crypto') as {
       createHash: typeof createHash_
     }
-    const { Client: PGClient } = require('pg@7.17.1')
+    const { Client: PGClient } = require('pg@8.7.1')
     const { MongoClient } = require('mongodb@3.1.4')
 
     /**
@@ -43,11 +29,6 @@ async function login(
      * typescript of the actual shape of `configuration`
      */
     const {
-      POSTGRES_USERNAME,
-      POSTGRES_PASSWORD,
-      POSTGRES_HOST,
-      POSTGRES_DATABASE,
-      POSTGRES_PORT,
       MONGO_URI,
       MONGO_DB_NAME,
     } = (configuration as unknown) as DbConfiguration
@@ -120,65 +101,13 @@ async function login(
       }
     }
 
-    async function loginParfitUser(): Promise<CallbackUser | null> {
-      /** Declare connection info */
-      const pgConnectionInfo: PGConnectionConfig = {
-        user: POSTGRES_USERNAME,
-        password: POSTGRES_PASSWORD,
-        host: POSTGRES_HOST,
-        database: POSTGRES_DATABASE,
-        port: POSTGRES_PORT ? parseInt(POSTGRES_PORT) : 5432,
-        ssl: TEMPLATE_DATA.pgShouldSsl,
-      }
-      /** Construct a postgres client and connect to the server */
-      const pgClient: PGClient = new PGClient(pgConnectionInfo)
-      await pgClient.connect()
-
-      /** Get the person based on their email, joining on the password table */
-      const parfitQuery = `
-        select
-          person.id, email, first_name, last_name, password
-        from people.person
-        join auth.password on password.person_id = person.id
-        where person.email = $1
-      `
-      const Person = await pgClient
-        .query<PersonResult>(parfitQuery, [email])
-        .then((res) => res.rows[0])
-
-      /** Close the connection */
-      await pgClient.end()
-
-      if (!Person) {
-        return null
-      }
-
-      /** Check that the supplied password matches the one in the database */
-      const isValid = await bcrypt.compare(password, Person.password)
-      if (!isValid) {
-        return null
-      }
-
-      /** Return the valid user back to Auth0 */
-      return {
-        id: Person.id,
-        given_name: Person.first_name,
-        family_name: Person.last_name,
-        email: Person.email,
-      }
-    }
-
     /** Give priority to Forum users, as the integration is newer and it has more users */
     const forumUser = await loginForumUser()
     if (forumUser) {
       return callback(null, forumUser)
     }
-    const parfitUser = await loginParfitUser()
-    if (parfitUser) {
-      return callback(null, parfitUser)
-    }
     return callback(new WrongUsernameOrPasswordError(email))
   } catch (err) {
-    return callback(err)
+    return callback(err as Error)
   }
 }

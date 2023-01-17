@@ -109,7 +109,7 @@ Commands:
 #### `deploy`
 
 ```sh
-yarn [rules|db|login] deploy
+yarn cli [rules|db|login] deploy
 ```
 
 Deploys all scripts in the manifest to Auth0.
@@ -122,7 +122,7 @@ are in the manifest.
 #### `diff`
 
 ```
-yarn [rules|db|login] diff
+yarn cli [rules|db|login] diff
 ```
 
 Diffs locally defined scripts against those defined on the Auth0 tenant.
@@ -195,6 +195,10 @@ AUTH0_DOMAIN=<your Auth0 tenant domain>
 AUTH0_CLIENT_ID=<client ID for the Rules Managment client application >
 AUTH0_CLIENT_SECRET=<client secret for the Rules Management client application>
 ```
+
+Some `TEMPLATE_DATA` values can also be defined in environment variables. For
+instance, the current rules implementation can be configured with the
+`TOKEN_NAMESPACE` variable.
 
 ## Structure and compilation
 
@@ -565,3 +569,7 @@ username and password authentication.
 
 We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant
 when merging to `master` or `dev`.
+
+To check that deployment worked, check the workflow run of
+[Gitub Actions](https://github.com/centre-for-effective-altruism/auth0-rules/actions)
+and verify that the diffs are as expected.
