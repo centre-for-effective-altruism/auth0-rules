@@ -73,26 +73,26 @@
           width: 100vw;
         }
       }
-      .contact-us {
+      .secondary-box {
         width: 100%;
-        height: calc(2em+5px);
         background-color: #dae0e2;
-        padding: 10px;
-        border-radius: 5px;
+        padding: 10px 16px;
+        border-radius: 0;
         text-align: center;
         position: relative;
         z-index: 5;
       }
-      @media (min-width: 480px) {
-        .contact-us {
-          margin-top: 20px;
-          margin-bottom: 20px;
-          width: 400px;
-        }
+      .contact-us {
+        margin-bottom: 0;
       }
-      @media (min-width: 1070px) {
+      @media (min-width: 480px) {
+        .secondary-box {
+          margin-top: 20px;
+          width: 400px;
+          border-radius: 5px;
+        }
         .contact-us {
-          margin-bottom: 0;
+          margin-bottom: 20px;
         }
       }
     </style>
@@ -102,7 +102,11 @@
       <div class="widget-wrapper">
         {%- auth0:widget -%}
       </div>
-      <div class="contact-us">
+      <div class="secondary-box">
+        By creating an <a href="https://effectivealtruism.org" target="_blank" rel="noreferrer">EffectiveAltruism.org</a> account,
+        you agree to the <a href="https://effectivealtruism.org/terms-and-conditions" target="_blank" rel="noreferrer">Terms of Use</a> and <a href="https://ev.org/ops/about/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+      </div>
+      <div class="secondary-box contact-us">
         Having issues? <strong><a href="https://centreforeffectivealtruism.org/contact">Get in touch</a></strong>.
       </div>
     </div>
