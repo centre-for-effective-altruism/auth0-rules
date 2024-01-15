@@ -48,7 +48,6 @@ export const RULE_MANIFEST: RuleDefinition[] = [
       const applicationNames = [
         'EA Funds',
         'Giving What We Can',
-        'Giving What We Can - Lyra',
         'Parfit Admin',
       ]
       const Clients = await getAllClients()
