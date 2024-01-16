@@ -23,6 +23,17 @@
       #prompt-logo-center {
         display: none;
       }
+      header p {
+        text-indent: -9999999px;
+        font-size: 0px !important;
+      }
+      header p:after {
+        content: "Log in to your Giving What We Can account";
+        text-indent: 0;
+        display: block;
+        font-size: 1rem;
+        line-height: initial;
+      }
       h1 {
         text-indent: -9999999px;
         font-size: 0px !important;
@@ -102,6 +113,15 @@
       <div class="widget-wrapper">
         {%- auth0:widget -%}
       </div>
+      {% if application.name contains "Giving" %}
+      <div class="secondary-box">
+        By creating a <a href="https://www.givingwhatwecan.org/" target="_blank" rel="noreferrer">Giving What We Can</a> account,
+        you agree to the <a href="https://www.givingwhatwecan.org/terms" target="_blank" rel="noreferrer">Terms of Use</a> and <a href="https://www.givingwhatwecan.org/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+      </div>
+      <div class="secondary-box contact-us">
+        Having issues? <strong><a href="https://www.givingwhatwecan.org/about-us/contact-us">Get in touch</a></strong>.
+      </div>
+      {% else %}
       <div class="secondary-box">
         By creating an <a href="https://effectivealtruism.org" target="_blank" rel="noreferrer">EffectiveAltruism.org</a> account,
         you agree to the <a href="https://effectivealtruism.org/terms-and-conditions" target="_blank" rel="noreferrer">Terms of Use</a> and <a href="https://ev.org/ops/about/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>.
@@ -109,6 +129,7 @@
       <div class="secondary-box contact-us">
         Having issues? <strong><a href="https://centreforeffectivealtruism.org/contact">Get in touch</a></strong>.
       </div>
+      {% endif %}
     </div>
   </body>
 </html>
