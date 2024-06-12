@@ -28,7 +28,11 @@
         font-size: 0px !important;
       }
       header p:after {
+        {% if prompt.name contains "signup" %}
+        content: "Sign Up to Giving What We Can";
+        {% else %}
         content: "Log in to your Giving What We Can account";
+        {% endif %}
         text-indent: 0;
         display: block;
         font-size: 1rem;
