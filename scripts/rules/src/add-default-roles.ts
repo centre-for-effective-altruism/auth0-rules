@@ -53,7 +53,7 @@ async function addDefaultRoles(
     const err = error as Error
     callback(
       new Error(
-        `Failed to set default role: ${err.message || JSON.stringify(error)}`
+        `Failed to set default role: ${err.message || JSON.stringify(err)}`
       )
     )
   }
