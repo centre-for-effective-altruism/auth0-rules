@@ -18,7 +18,13 @@ async function diffLoginTemplate() {
   const branding = auth0.branding
   let existingTemplate
   try {
-    existingTemplate = (await branding.getUniversalLoginTemplate()).body
+    const response = await branding.getUniversalLoginTemplate()
+    if (typeof response.data === 'string') {
+      throw new Error(
+        'Expected an object for the template, but received a string.'
+      )
+    }
+    existingTemplate = response.data.body
   } catch (err) {
     if ((err as { statusCode?: number }).statusCode === 404) {
       existingTemplate = ''
@@ -37,10 +43,12 @@ async function diffLoginTemplate() {
 }
 
 async function diffCustomText() {
-  const existingCustomText = await auth0.prompts.getCustomTextByLanguage({
-    prompt: 'signup',
-    language: 'en',
-  })
+  const existingCustomText = (
+    await auth0.prompts.getCustomTextByLanguage({
+      prompt: 'signup',
+      language: 'en',
+    })
+  ).data
   const sortedExistingCustomText = deepSortObject(existingCustomText)
 
   const newCustomText = JSON.parse(
