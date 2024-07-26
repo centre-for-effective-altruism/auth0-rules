@@ -15,7 +15,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 18
 
       # See https://www.maxivanov.io/github-actions-deploy-to-multiple-environments-from-single-workflow/
       - name: Set environment vars (staging)
