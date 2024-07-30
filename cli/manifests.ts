@@ -91,6 +91,15 @@ export const RULE_MANIFEST: RuleDefinition[] = [
   },
 ]
 
+export const ACTION_MANIFEST: ActionDefinition[] = [
+  {
+    name: 'Log Context',
+    file: 'log-context',
+    enabled: false,
+    trigger: 'post-login',
+  },
+]
+
 /**
  * List of Database Action Scripts to Deploy.
  *

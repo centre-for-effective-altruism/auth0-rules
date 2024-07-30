@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "auth0": "^4.7.0",
+    "auth0-actions": "^0.1.1",
     "chalk": "^4.1.0",
     "diff": "^5.0.0",
     "dotenv": "^8.2.0",

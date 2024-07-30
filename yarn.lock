@@ -413,7 +413,14 @@ astral-regex@^2.0.0:
   resolved "https://registry.yarnpkg.com/astral-regex/-/astral-regex-2.0.0.tgz#483143c567aeed4785759c0865786dc77d7d2e31"
   integrity sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==
 
-auth0@^4.7.0:
+auth0-actions@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/auth0-actions/-/auth0-actions-0.1.1.tgz#47a51b0ccd1f89a678b793b1bd1d8a62ecb6ce39"
+  integrity sha512-EI+mUROFVwUKVcRLNNWIEuB7WDZBKnSPiKkKGc8xuv6afZU5CUDSk7ZlG+swTVQ1MhaRp9bkX2L6OZ6lADBC+A==
+  dependencies:
+    auth0 "^4.3.1"
+
+auth0@^4.3.1, auth0@^4.7.0:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/auth0/-/auth0-4.7.0.tgz#8137aeb815df6303963a12602a0ff07765238444"
   integrity sha512-i8GvzdRlg8TcgRXsFEtejy+5dUOeWbnEYbU6CAkH+l8FgClGEmZpBInOJzWMkcwNae4q5AlBsCATK6nAvLtVGw==
