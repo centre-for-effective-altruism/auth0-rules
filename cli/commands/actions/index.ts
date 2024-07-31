@@ -1,11 +1,11 @@
 import program from 'commander'
 import diff from './diff'
-// import deploy from './deploy'
+import deploy from './deploy'
 
-// program
-//   .command('deploy')
-//   .description('Deploy actions to the Auth0 tenant')
-//   .action(deploy)
+program
+  .command('deploy')
+  .description('Deploy actions to the Auth0 tenant')
+  .action(deploy)
 
 program
   .command('diff')

@@ -23,6 +23,7 @@ exports.onExecutePostLogin = async (
   if (api.rules.wasExecuted('rul_3YxacLKiymV7HNa5')) {
     return
   }
+
   // Log the context and user information
   console.log(`==== Action context: ====`)
   console.log(event)

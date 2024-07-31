@@ -95,8 +95,9 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
   {
     name: 'Log Context',
     file: 'log-context',
-    enabled: false,
+    enabled: true,
     trigger: 'post-login',
+    triggerVersion: 'v3',
   },
 ]
 

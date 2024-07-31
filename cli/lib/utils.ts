@@ -14,9 +14,15 @@ import { padEnd, truncate } from 'lodash'
 import { cyan, green, grey, redBright, yellow } from 'chalk'
 import { Change } from 'diff'
 
+// To support other triggers, we would need to update `deploy.ts` to allow for
+// changing from one trigger to another. Currently it only checks the trigger
+// given in the manifest
+export const SUPPORTED_ACTION_TRIGGERS = ['post-login'] as const
+export type SupportedActionTrigger = typeof SUPPORTED_ACTION_TRIGGERS[number]
+
 const RESULTS_PER_PAGE = 20
-/** Paginate through an Auth0 record set */
-export function paginateQuery<T>(
+/** Paginate through an Auth0 record set where the response if of the form Promise<T[]> */
+export function paginateArrayQuery<T>(
   method: ({
     page,
     per_page,
@@ -36,47 +42,71 @@ export function paginateQuery<T>(
   return fn
 }
 
+/**
+ * Paginate through an Auth0 record set where the response if of the form Promise<ApiResponse<Record<K, T[]>>>,
+ * with the data nested under response.data[key]
+ */
+export function paginateNestedQuery<K extends string, T>(
+  method: ({
+    page,
+    per_page,
+  }: {
+    page: number
+    per_page: number
+  }) => Promise<ApiResponse<Record<K, T[]>>>,
+  key: K
+): () => Promise<T[]> {
+  const fn = async () => {
+    const results: T[] = []
+
+    // Finite limit of 1000 pages to prevent an infinite loop, we would never expect to get this many results
+    const iterLimit = 1000
+    for (let page = 0; page < iterLimit; page++) {
+      if (page >= iterLimit - 1) {
+        throw new Error(`Too many actions to fetch`)
+      }
+
+      const res = await method({ page, per_page: RESULTS_PER_PAGE })
+      if (res.status !== 200) {
+        throw new Error('Unexpected error when fetching paginated data')
+      }
+
+      const newItems = res.data[key]
+      results.push(...newItems)
+
+      if (newItems.length < RESULTS_PER_PAGE) {
+        break
+      }
+    }
+
+    return results
+  }
+  return fn
+}
+
 /** Recursively page through all rules on the Auth0 tenant */
-export const getAllRules = paginateQuery<Rule>(
+export const getAllRules = paginateArrayQuery<Rule>(
   auth0.rules.getAll.bind(auth0.rules)
 )
 
-/** Pageage through all actions on the Auth0 tenant */
-export const getAllActions = async () => {
-  // The different format of the response data means we can't use paginateQuery like all the others
-  const actions: Action[] = []
-
-  // Finite limit of 100 pages to prevent an infinite loop, we would never expect to have the 2000 actions that this implies
-  const iterLimit = 100
-  for (let page = 0; page < iterLimit; page++) {
-    if (page >= iterLimit - 1) {
-      throw new Error(`Too many actions to fetch`)
-    }
-
-    const res = await auth0.actions.getAll({ page, per_page: RESULTS_PER_PAGE })
-    const newItems = res.data.actions
-    actions.push(...newItems)
-
-    if (newItems.length < RESULTS_PER_PAGE) {
-      break
-    }
-  }
-
-  return actions
-}
+/** Page through all actions on the Auth0 tenant */
+export const getAllActions = paginateNestedQuery(
+  auth0.actions.getAll.bind(auth0.actions),
+  'actions'
+)
 
 /** Recursively page through all clients (applications) on the Auth0 tenant */
-export const getAllClients = paginateQuery<Client>(
+export const getAllClients = paginateArrayQuery<Client>(
   auth0.clients.getAll.bind(auth0.clients)
 )
 
 /** Recursively page through all roles on the Auth0 tenant */
-export const getAllRoles = paginateQuery<Role>(
+export const getAllRoles = paginateArrayQuery<Role>(
   auth0.roles.getAll.bind(auth0.roles)
 )
 
 /** Recursively page through all connections on the Auth0 tenant */
-export const getAllConnections = paginateQuery<Connection>(
+export const getAllConnections = paginateArrayQuery<Connection>(
   auth0.connections.getAll.bind(auth0.connections)
 )
 
