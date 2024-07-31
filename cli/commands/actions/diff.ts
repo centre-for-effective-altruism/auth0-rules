@@ -7,13 +7,15 @@ import { cyan, green, grey, magenta, red } from 'chalk'
 type DiffPair = [ActionDefinition, Action | undefined]
 
 // TODO:
-// - [ ] Write rudimentary deploy script to get log-context working end to end
-//   - [ ] Create or update action
-//   - [ ] Deploy or not based on `enabled`
-//   - [ ] Attach to trigger
-//   - [ ] Test, get it to log something
+// - [X] Write rudimentary deploy script to get log-context working end to end
+//   - [X] Create or update action
+//   - [X] Deploy or not based on `enabled`
+//   - [X] Attach to trigger
+//   - [X] Test, get it to log something
 // - [ ] Handle secrets
+// - [ ] Handle ordering
 // - [ ] Write our own types for actions
+// - [ ] Add info about enabled/disabled state to diff script
 
 export default async function run() {
   const actions = await getAllActions()

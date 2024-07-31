@@ -4,7 +4,6 @@ import {
   Connection,
   GetOrganizationMemberRoles200ResponseOneOfInner as Role,
   Rule,
-  GetActions200ResponseActionsInner as Action,
 } from 'auth0'
 import { fs } from 'mz'
 import path from 'path'
