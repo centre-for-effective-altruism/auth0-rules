@@ -45,7 +45,7 @@ export default async function run() {
       if (existingRule?.id) {
         // Update an existing rule
         formatUpdateRuleMessage(ruleDef.name, true)
-        await auth0.updateRule(
+        await auth0.rules.update(
           { id: existingRule.id },
           { enabled: ruleDef.enabled, script, order }
         )
@@ -53,7 +53,7 @@ export default async function run() {
       } else {
         // Create a new rule
         formatUpdateRuleMessage(ruleDef.name, false)
-        await auth0.createRule({
+        await auth0.rules.create({
           name: ruleDef.name,
           enabled: ruleDef.enabled,
           script,
