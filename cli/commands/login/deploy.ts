@@ -17,7 +17,7 @@ async function deployLoginTemplate() {
   const newTemplate = (
     await fs.readFile(path.join(__dirname, '../../../templates/login.liquid'))
   ).toString()
-  await branding.setUniversalLoginTemplate(undefined, {
+  await branding.setUniversalLoginTemplate({
     template: newTemplate,
   })
 }
@@ -31,9 +31,11 @@ async function deployCustomText() {
     ).toString()
   )
 
-  auth0.prompts.updateCustomTextByLanguage({
-    prompt: 'signup',
-    language: 'en',
-    body: customText,
-  })
+  auth0.prompts.updateCustomTextByLanguage(
+    {
+      prompt: 'signup',
+      language: 'en',
+    },
+    customText
+  )
 }
