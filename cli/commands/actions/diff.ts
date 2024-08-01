@@ -13,7 +13,7 @@ type DiffPair = [ActionDefinition, Action | undefined]
 //   - [X] Attach to trigger
 //   - [X] Test, get it to log something
 // - [ ] Handle secrets
-// - [ ] Handle ordering
+// - [X] Handle ordering
 // - [ ] Write our own types for actions
 // - [ ] Add info about enabled/disabled state to diff script
 

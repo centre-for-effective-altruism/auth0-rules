@@ -143,21 +143,28 @@ export async function generateCode(
       .trim(),
   ].join('\n\n')
 
+  const getTemplate = () => {
+    if (!getData) return scriptBase
+
+    if (codeType === 'actions') {
+      return `// Template data\nconst TEMPLATE_DATA = ${formatData(
+        data
+      )}\n\n${scriptBase}`
+    }
+
+    // For Rules, it's not possible to add code outside of the single function. So
+    // we need to inject our template data as the first line of the function
+    return scriptBase.replace(
+      /(function.*?\{\n)/m,
+      `$1
+      // Template data
+      const TEMPLATE_DATA = ${formatData(data)}\n\n
+      `
+    )
+  }
+
   // Inject template variables into the template if they exist
-  const template = getData
-    ? /**
-       * It's not possible to add code outside of the single function in a rule
-       * declaration, so we can't just prepend the data to the top of the file. This
-       * injects our template data as the first line of the function
-       */
-      scriptBase.replace(
-        /(function.*?\{\n)/m,
-        `$1
-        // Template data
-        const TEMPLATE_DATA = ${formatData(data)}\n\n
-        `
-      )
-    : scriptBase
+  const template = getTemplate()
 
   // format the template script
   return prettier.format(template, { parser: 'babel' })
