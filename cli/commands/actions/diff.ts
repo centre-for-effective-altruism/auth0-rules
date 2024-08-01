@@ -6,17 +6,6 @@ import { cyan, green, grey, magenta, red } from 'chalk'
 
 type DiffPair = [ActionDefinition, Action | undefined]
 
-// TODO:
-// - [X] Write rudimentary deploy script to get log-context working end to end
-//   - [X] Create or update action
-//   - [X] Deploy or not based on `enabled`
-//   - [X] Attach to trigger
-//   - [X] Test, get it to log something
-// - [ ] Handle secrets
-// - [X] Handle ordering
-// - [ ] Write our own types for actions
-// - [ ] Add info about enabled/disabled state to diff script
-
 export default async function run() {
   const actions = await getAllActions()
   // Match actions in the manifest to existing Auth0 actions

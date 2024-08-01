@@ -9,6 +9,8 @@ import {
   PatchBindingsRequestBindingsInnerOneOf,
 } from 'auth0'
 
+const { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET } = process.env
+
 const getBindingName = (actionDef: ActionDefinition) =>
   `${actionDef.name}_${actionDef.trigger}`
 
@@ -94,6 +96,13 @@ async function deployAction({
     supported_triggers: [
       { id: actionDef.trigger, version: actionDef.triggerVersion },
     ],
+    dependencies: [{ name: 'auth0', version: '4.7.0' }],
+    // Always include these to the action can access the management api
+    secrets: [
+      { name: 'AUTH0_DOMAIN', value: AUTH0_DOMAIN },
+      { name: 'AUTH0_CLIENT_ID', value: AUTH0_CLIENT_ID },
+      { name: 'AUTH0_CLIENT_SECRET', value: AUTH0_CLIENT_SECRET },
+    ],
   }
   const updateEnabled = async (actionId: string) =>
     ensureTriggerBindingState({
@@ -122,7 +131,22 @@ async function deployAction({
   }
   const actionId = await createOrUpdateAction()
 
-  await auth0.actions.deploy({ id: actionId })
+  for (let i = 0; i < 5; i++) {
+    try {
+      await auth0.actions.deploy({ id: actionId })
+      break
+    } catch (e) {
+      // When there are dependencies, the action may not be ready to deploy immediately. Silently handle the error in that case, otherwise complain
+      if (
+        (e as { msg: string })?.msg !==
+        "A draft must be in the 'built' state before it can be deployed."
+      ) {
+        console.error('Unexpected error, retrying after 1s: ', e)
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+  }
+
   console.log(`New version deployed ${green(`\u2713`)}`)
 
   // If end state is enabled, enable after updating
