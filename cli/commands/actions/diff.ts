@@ -7,14 +7,14 @@ import { cyan, green, grey, magenta, red } from 'chalk'
 type DiffPair = [ActionDefinition, Action | undefined]
 
 export default async function run() {
-  const actions = await getAllActions()
+  const liveActions = await getAllActions()
   // Match actions in the manifest to existing Auth0 actions
   const matches: DiffPair[] = ACTION_MANIFEST.map((actionDef) => [
     actionDef,
-    actions.find((action) => actionDef.name === action.name),
+    liveActions.find((action) => actionDef.name === action.name),
   ])
   // Actions that exist on Auth0 but are not defined in the manifest
-  const extras: Action[] = actions.filter((action) =>
+  const extras: Action[] = liveActions.filter((action) =>
     ACTION_MANIFEST.every((actionDef) => actionDef.name !== action.name)
   )
   const diffs: [ActionDefinition, Change[]][] = []

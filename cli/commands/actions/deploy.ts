@@ -14,6 +14,10 @@ const { AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET } = process.env
 const getBindingName = (actionDef: ActionDefinition) =>
   `${actionDef.name}_${actionDef.trigger}`
 
+/**
+ * Actions are enabled or disabled by binding them to a trigger. This function binds/unbinds
+ * the action as applicable.
+ */
 async function ensureTriggerBindingState({
   bindingName,
   actionId,
@@ -25,6 +29,7 @@ async function ensureTriggerBindingState({
   actionId: string
   triggerId: string
   bound: boolean
+  /** `name`s of the other bindings that should come before this one */
   insertAfter: string[]
 }) {
   const prevTriggerBindings = await paginateNestedQuery(
@@ -96,8 +101,8 @@ async function deployAction({
     supported_triggers: [
       { id: actionDef.trigger, version: actionDef.triggerVersion },
     ],
+    // Always include these dependencies and secrets to allow access to the Management API
     dependencies: [{ name: 'auth0', version: '4.7.0' }],
-    // Always include these to the action can access the management api
     secrets: [
       { name: 'AUTH0_DOMAIN', value: AUTH0_DOMAIN },
       { name: 'AUTH0_CLIENT_ID', value: AUTH0_CLIENT_ID },
@@ -113,7 +118,7 @@ async function deployAction({
       insertAfter,
     })
 
-  // If end state is disabled, disable before updating
+  // If the desired final state is disabled, disable before updating
   if (!actionDef.enabled && existingAction) {
     await updateEnabled(existingAction.id)
   }
@@ -131,12 +136,12 @@ async function deployAction({
   }
   const actionId = await createOrUpdateAction()
 
+  // When there are dependencies, the action may not be ready to deploy immediately. Retry up to 5 times with a short delay.
   for (let i = 0; i < 5; i++) {
     try {
       await auth0.actions.deploy({ id: actionId })
       break
     } catch (e) {
-      // When there are dependencies, the action may not be ready to deploy immediately. Silently handle the error in that case, otherwise complain
       if (
         (e as { msg: string })?.msg !==
         "A draft must be in the 'built' state before it can be deployed."
@@ -149,7 +154,7 @@ async function deployAction({
 
   console.log(`New version deployed ${green(`\u2713`)}`)
 
-  // If end state is enabled, enable after updating
+  // If the desired final state is enabled, enable after updating and deploying
   if (actionDef.enabled) {
     await updateEnabled(actionId)
   }
@@ -157,14 +162,14 @@ async function deployAction({
 
 export default async function run() {
   try {
-    const actions = await getAllActions()
+    const liveActions = await getAllActions()
     for (let i = 0; i < ACTION_MANIFEST.length; i++) {
       const actionDef = ACTION_MANIFEST[i]
       console.log(`Updating action "${actionDef.name}":`)
       const insertAfter = ACTION_MANIFEST.slice(0, i).map(getBindingName)
       await deployAction({
         actionDef: actionDef,
-        existingActions: actions,
+        existingActions: liveActions,
         insertAfter,
       })
     }
