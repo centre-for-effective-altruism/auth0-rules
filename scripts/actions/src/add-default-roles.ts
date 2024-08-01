@@ -1,3 +1,4 @@
+import type { ManagementClient } from 'auth0'
 import {
   DefaultPostLoginApi,
   DefaultPostLoginEvent,
@@ -19,7 +20,7 @@ exports.onExecutePostLogin = async (
     const DEFAULT_ROLES: string[] = TEMPLATE_DATA.defaultRoles
 
     const ManagementClient = auth0Sdk.ManagementClient
-    const management = new ManagementClient({
+    const management: ManagementClient = new ManagementClient({
       domain: event.secrets.AUTH0_DOMAIN,
       clientId: event.secrets.AUTH0_CLIENT_ID,
       clientSecret: event.secrets.AUTH0_CLIENT_SECRET,
@@ -38,8 +39,9 @@ exports.onExecutePostLogin = async (
 
     // Otherwise we need to check the roles currently assigned to the user
     const roles = await management.users.getRoles({ id: event.user!.user_id })
+    const roleIds = roles.data.map((role: { id: string }) => role.id)
 
-    if (!DEFAULT_ROLES.every((defaultRole) => roles.includes(defaultRole))) {
+    if (!DEFAULT_ROLES.every((defaultRole) => roleIds.includes(defaultRole))) {
       await management.users.assignRoles(params, data)
     }
   } catch (error) {
