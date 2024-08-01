@@ -9,16 +9,21 @@ import {
   PatchBindingsRequestBindingsInnerOneOf,
 } from 'auth0'
 
+const getBindingName = (actionDef: ActionDefinition) =>
+  `${actionDef.name}_${actionDef.trigger}`
+
 async function ensureTriggerBindingState({
   bindingName,
   actionId,
   triggerId,
   bound,
+  insertAfter,
 }: {
   bindingName: string
   actionId: string
   triggerId: string
   bound: boolean
+  insertAfter: string[]
 }) {
   const prevTriggerBindings = await paginateNestedQuery(
     auth0.actions.getTriggerBindings.bind(auth0.actions, {
@@ -27,65 +32,56 @@ async function ensureTriggerBindingState({
     'bindings'
   )()
 
-  const prevBoundState = prevTriggerBindings.some(
-    (tb) => tb.action.id === actionId
-  )
+  const otherTriggerBindings: PatchBindingsRequestBindingsInnerOneOf[] =
+    prevTriggerBindings
+      .map((tb) => ({
+        display_name: tb.display_name,
+        ref: {
+          type: 'action_id' as const,
+          value: tb.action.id,
+        },
+      }))
+      .filter((tb) => tb.ref.value !== actionId)
 
-  if (prevBoundState === bound) {
-    console.log(
-      `Action ${
-        bound ? 'enabled' : 'disabled'
-      }: No need to update trigger binding state ${green(`\u2713`)}`
+  if (bound) {
+    const indices = insertAfter.map((name) =>
+      otherTriggerBindings.findIndex((tb) => tb.display_name === name)
     )
-    return
-  }
+    const lastInsertIndex = Math.max(...indices, -1)
 
-  const prevTriggerBindingsUpdateFormat: PatchBindingsRequestBindingsInnerOneOf[] =
-    prevTriggerBindings.map((tb) => ({
-      display_name: tb.display_name,
+    const updatedBindings = [...otherTriggerBindings]
+    updatedBindings.splice(lastInsertIndex + 1, 0, {
+      display_name: bindingName,
       ref: {
         type: 'action_id',
-        value: tb.action.id,
+        value: actionId,
       },
-    }))
+    })
 
-  // TODO enforce ordering
-  if (bound) {
     await auth0.actions.updateTriggerBindings(
       { triggerId },
       {
-        bindings: [
-          ...prevTriggerBindingsUpdateFormat,
-          {
-            display_name: bindingName,
-            ref: {
-              type: 'action_id',
-              value: actionId,
-            },
-          },
-        ],
+        bindings: updatedBindings,
       }
     )
-    console.log(`Action enabled: Trigger binding added ${green(`\u2713`)}`)
+    console.log(`Action enabled and ordering updated ${green(`\u2713`)}`)
   } else {
     await auth0.actions.updateTriggerBindings(
       { triggerId },
-      {
-        bindings: prevTriggerBindingsUpdateFormat.filter(
-          (tb) => tb.ref.value !== actionId
-        ),
-      }
+      { bindings: otherTriggerBindings }
     )
-    console.log(`Action disabled: Trigger binding removed ${green(`\u2713`)}`)
+    console.log(`Action disabled ${green(`\u2713`)}`)
   }
 }
 
 async function deployAction({
   actionDef,
   existingActions,
+  insertAfter,
 }: {
   actionDef: ActionDefinition
   existingActions: Action[]
+  insertAfter: string[]
 }) {
   const script = await generateCode(actionDef, 'actions')
   const existingAction = existingActions.find(
@@ -101,10 +97,11 @@ async function deployAction({
   }
   const updateEnabled = async (actionId: string) =>
     ensureTriggerBindingState({
-      bindingName: `${actionDef.name}_${actionDef.trigger}`,
+      bindingName: getBindingName(actionDef),
       triggerId: actionDef.trigger,
       actionId,
       bound: actionDef.enabled,
+      insertAfter,
     })
 
   // If end state is disabled, disable before updating
@@ -126,7 +123,7 @@ async function deployAction({
   const actionId = await createOrUpdateAction()
 
   await auth0.actions.deploy({ id: actionId })
-  console.log(`Action deployed ${green(`\u2713`)}`)
+  console.log(`New version deployed ${green(`\u2713`)}`)
 
   // If end state is enabled, enable after updating
   if (actionDef.enabled) {
@@ -137,8 +134,15 @@ async function deployAction({
 export default async function run() {
   try {
     const actions = await getAllActions()
-    for (const actionDef of ACTION_MANIFEST) {
-      await deployAction({ actionDef: actionDef, existingActions: actions })
+    for (let i = 0; i < ACTION_MANIFEST.length; i++) {
+      const actionDef = ACTION_MANIFEST[i]
+      console.log(`Updating action "${actionDef.name}":`)
+      const insertAfter = ACTION_MANIFEST.slice(0, i).map(getBindingName)
+      await deployAction({
+        actionDef: actionDef,
+        existingActions: actions,
+        insertAfter,
+      })
     }
   } catch (err) {
     console.error(red((err as Error).message))
