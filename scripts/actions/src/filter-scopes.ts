@@ -12,6 +12,22 @@ const DEFAULT_SCOPES = ['openid', 'profile', 'email', 'offline_access']
 // (currently empty, but we may expand it in future...)
 const SCOPE_WHITELIST: string[] = []
 
+/**
+ * Filters the scopes available on a user's access token, based on the
+ * application they are using to log in.
+ *
+ * For applications on the whitelist, all scopes are allowed. Otherwise, the
+ * rule only allows a restricted subset. This makes it easy for third party
+ * applications to use our Auth0 system for authentication, without allowing
+ * them to authorize resources that shouldn't be accessible outside of
+ * first-party applications.
+ *
+ * Because we're manually editing the `accessToken.scopes` property, Auth0 will
+ * no longer check that the user actually has the permissions that they are
+ * requesting. Instead, we need to use the Management Client to get the
+ * permissions attached to the user, and only include the union of <allowed
+ * permissions> and <requested permissions> in the access token.
+ */
 exports.onExecutePostLogin = async (
   event: DefaultPostLoginEvent,
   api: DefaultPostLoginApi
@@ -62,7 +78,10 @@ exports.onExecutePostLogin = async (
   )
 
   // scopes that the client application has requested on behalf of the user
-  const requestedScopes: string[] = event.transaction?.requested_scopes || []
+  const requestedScopes: string[] =
+    event.transaction?.requested_scopes ||
+    event.request?.body.scope.split(' ') ||
+    []
 
   // get a list of the whitelisted scopes that the user has access to
   const allowedUserScopes = SCOPE_WHITELIST.filter((scope) =>
@@ -74,13 +93,9 @@ exports.onExecutePostLogin = async (
     ? [...DEFAULT_SCOPES, ...userScopes]
     : [...DEFAULT_SCOPES, ...allowedUserScopes]
 
-  // final list of scopes to add to the access token, built by diffing
-  // the list of allowed scopes against the requested scopes
-  const finalScopes = allowedScopes.filter((scope) =>
-    requestedScopes.includes(scope)
+  const removedScopes = requestedScopes.filter(
+    (s) => !allowedScopes.includes(s)
   )
-
-  const removedScopes = requestedScopes.filter((s) => !finalScopes.includes(s))
 
   for (const scope of removedScopes) {
     api.accessToken.removeScope(scope)

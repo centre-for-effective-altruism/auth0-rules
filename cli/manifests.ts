@@ -93,11 +93,15 @@ export const RULE_MANIFEST: RuleDefinition[] = [
 
 export const ACTION_MANIFEST: ActionDefinition[] = [
   {
-    name: 'Log Context',
-    file: 'log-context',
-    enabled: false,
+    name: 'Add email to access token',
+    file: 'email-to-access-token',
+    enabled: true,
     trigger: 'post-login',
     triggerVersion: 'v3',
+    getData: () => {
+      const namespace = process.env.TOKEN_NAMESPACE
+      return { namespace }
+    },
   },
   {
     name: 'Add Default Role To All Users',
@@ -142,6 +146,13 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
         )
       return { whitelist }
     },
+  },
+  {
+    name: 'Log Context',
+    file: 'log-context',
+    enabled: false,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
   },
 ]
 
