@@ -119,6 +119,30 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
       return { defaultRoles }
     },
   },
+  {
+    name: 'Filter scopes',
+    file: 'filter-scopes',
+    enabled: true,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
+    getData: async () => {
+      const applicationNames = [
+        'EA Funds',
+        'Giving What We Can',
+        'Parfit Admin',
+      ]
+      const Clients = await getAllClients()
+      const whitelist = Clients.filter(isValidClient)
+        .filter((Client) => applicationNames.includes(Client.name))
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
+      return { whitelist }
+    },
+  },
 ]
 
 /**
