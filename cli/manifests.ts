@@ -124,27 +124,52 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
     },
   },
   {
-    name: 'Filter scopes',
-    file: 'filter-scopes',
+    name: 'Manage scopes',
+    file: 'manage-scopes',
     enabled: true,
     trigger: 'post-login',
     triggerVersion: 'v3',
     getData: async () => {
-      const applicationNames = [
+      // Get token namespace
+      const namespace = process.env.TOKEN_NAMESPACE
+
+      const allowAllScopesApplicationNames = [
         'EA Funds',
         'Giving What We Can',
         'Parfit Admin',
       ]
+
+      const scopesToIdTokenApplicationNames = ['Giving What We Can']
+
       const Clients = await getAllClients()
-      const whitelist = Clients.filter(isValidClient)
-        .filter((Client) => applicationNames.includes(Client.name))
+      const validClients = Clients.filter(isValidClient)
+      const allowAllScopesWhitelist = validClients
+        .filter((Client) =>
+          allowAllScopesApplicationNames.includes(Client.name)
+        )
         .map((Client) =>
           getCommentValue({
             applicationName: Client.name,
             value: Client.client_id,
           })
         )
-      return { whitelist }
+
+      const addScopesToIdTokenApplications = Clients.filter(isValidClient)
+        .filter((Client) =>
+          scopesToIdTokenApplicationNames.includes(Client.name)
+        )
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
+
+      return {
+        allowAllScopesWhitelist,
+        addScopesToIdTokenApplications,
+        namespace,
+      }
     },
   },
   {

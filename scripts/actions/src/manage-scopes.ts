@@ -13,8 +13,11 @@ const DEFAULT_SCOPES = ['openid', 'profile', 'email', 'offline_access']
 const SCOPE_WHITELIST: string[] = []
 
 /**
- * Filters the scopes available on a user's access token, based on the
+ * 1. Filters the scopes available on a user's access token, based on the
  * application they are using to log in.
+ * 2. Adds the requested scopes to the `idToken` so they are readable by applications
+ *
+ * 1. Filtering scopes:
  *
  * For applications on the whitelist, all scopes are allowed. Otherwise, the
  * rule only allows a restricted subset. This makes it easy for third party
@@ -27,6 +30,20 @@ const SCOPE_WHITELIST: string[] = []
  * requesting. Instead, we need to use the Management Client to get the
  * permissions attached to the user, and only include the union of <allowed
  * permissions> and <requested permissions> in the access token.
+ *
+ * 2. Adding scopes to id token
+ *
+ * Single Page Applications don't have an easy way to inspect which scopes are
+ * present on the Access Token. The Access Token should be treated as an opaque
+ * string (even though it's technically possible to decode it if it's a JWT).
+ * Instead, we should place any data that's supposed to be accessible to the
+ * application into the ID Token.
+ *
+ * We restrict this to the subset of applications that are in fact SPA's, as
+ * other applications may use cookies to store Auth0 sessions, and adding a lot
+ * of scopes to the ID Token (which will also by necessity be added to the
+ * Access Token) will significantly increase cookie size (which may cause failed
+ * HTTP requests – total HTTP headers should be smaller than 8kb).
  */
 exports.onExecutePostLogin = async (
   event: DefaultPostLoginEvent,
@@ -43,8 +60,11 @@ exports.onExecutePostLogin = async (
     return
   }
 
+  const clientId = event.user?.user_id!
+
   // Whitelist of applications that can access the full set of scopes
-  const applicationWhitelist: string[] = TEMPLATE_DATA.whitelist
+  const allowAllScopesWhitelist: string[] =
+    TEMPLATE_DATA.allowAllScopesWhitelist
 
   // Set up a management client so that we can read the user's full set of permissions
   const ManagementClient = auth0Sdk.ManagementClient
@@ -76,7 +96,7 @@ exports.onExecutePostLogin = async (
   }
 
   // get the user's canonical set of permissions
-  const userPermissions = await getUserPermissions(event.user?.user_id!)
+  const userPermissions = await getUserPermissions(clientId)
 
   const userScopes = userPermissions.map(
     (permissionObj) => permissionObj.permission_name!
@@ -85,6 +105,8 @@ exports.onExecutePostLogin = async (
   // scopes that the client application has requested on behalf of the user
   const requestedScopes: string[] =
     event.transaction?.requested_scopes ||
+    // requested_scopes isn't given for certain login flows, such as embedded username/password forms.
+    // See here for more info: https://community.auth0.com/t/knowledge-find-requested-scopes-in-actions-for-refresh-token-client-credential-exchange-or-ropg/126154
     event.request?.body.scope.split(' ') ||
     []
 
@@ -94,7 +116,7 @@ exports.onExecutePostLogin = async (
   )
 
   // final list of all allowed scopes
-  const allowedScopes = applicationWhitelist.includes(event.client?.clientId!)
+  const allowedScopes = allowAllScopesWhitelist.includes(clientId)
     ? [...DEFAULT_SCOPES, ...userScopes]
     : [...DEFAULT_SCOPES, ...allowedUserScopes]
 
@@ -104,5 +126,32 @@ exports.onExecutePostLogin = async (
 
   for (const scope of removedScopes) {
     api.accessToken.removeScope(scope)
+  }
+
+  // Add scopes to id token
+  if (
+    rules.wasExecuted('rul_xCrJeqQqQV9mpcgd') ||
+    rules.wasExecuted('rul_hXiFiwDPhyZMzaeb') ||
+    rules.wasExecuted('rul_q2BiNgZu7CvnyNx5')
+  ) {
+    return
+  }
+
+  const finalScopes = requestedScopes.filter((s) => allowedScopes.includes(s))
+  const requiredApplications = TEMPLATE_DATA.addScopesToIdTokenApplications
+
+  console.log({
+    requestedScopes,
+    allowedUserScopes,
+    allowedScopes,
+    removedScopes,
+    finalScopes,
+    requiredApplications,
+  })
+  // To verify: log profile from auth0
+
+  if (requiredApplications.includes(clientId)) {
+    const namespace: string = TEMPLATE_DATA.namespace
+    api.idToken.setCustomClaim(`${namespace}/scope`, finalScopes.join(' '))
   }
 }
