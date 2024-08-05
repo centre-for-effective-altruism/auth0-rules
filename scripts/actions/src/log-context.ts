@@ -15,7 +15,12 @@ exports.onExecutePostLogin = async (
 ) => {
   // Skip if the analogous Rule was executed first. You can get this ID from the Rules
   // page in the Auth0 dashboard (https://manage.auth0.com/#/rules)
-  if (api.rules.wasExecuted('rul_3YxacLKiymV7HNa5')) {
+  const rules = api.rules
+  if (
+    rules.wasExecuted('rul_3YxacLKiymV7HNa5') ||
+    rules.wasExecuted('rul_Us5Wft14QwXvF2vE') ||
+    rules.wasExecuted('rul_wNqx6pYqf7M2DHZo')
+  ) {
     return
   }
 

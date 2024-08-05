@@ -12,7 +12,12 @@ exports.onExecutePostLogin = async (
 ) => {
   // Skip if the analogous Rule was executed first. You can get this ID from the Rules
   // page in the Auth0 dashboard (https://manage.auth0.com/#/rules)
-  if (api.rules.wasExecuted('rul_bnNiRxFsMNMFESXI')) {
+  const rules = api.rules
+  if (
+    rules.wasExecuted('rul_bnNiRxFsMNMFESXI') ||
+    rules.wasExecuted('rul_5Vw7afGhK3xK6e7h') ||
+    rules.wasExecuted('rul_4kOsLbpioVFXGpgj')
+  ) {
     return
   }
 
@@ -45,7 +50,7 @@ exports.onExecutePostLogin = async (
       await management.users.assignRoles(params, data)
     }
   } catch (error) {
-    // @ts-ignore `error` is assumed to have type "unknown", when actually it will always be an Error. Casting isn't sufficient because the types annotations are dropped in the deployed version
+    // @ts-ignore `error` is assumed to have type `unknown`, when actually it will always be an `Error`. Casting isn't sufficient because the types annotations are dropped in the deployed version
     api.access.deny(`Failed to set default role: ${error?.message}`)
   }
 }
