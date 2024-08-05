@@ -60,8 +60,8 @@ exports.onExecutePostLogin = async (
     return
   }
 
-  const userId = event.user?.user_id!
-  const clientId = event.client?.clientId!
+  const userId = event.user.user_id
+  const clientId = event.client.clientId
 
   // Whitelist of applications that can access the full set of scopes
   const allowAllScopesWhitelist: string[] =

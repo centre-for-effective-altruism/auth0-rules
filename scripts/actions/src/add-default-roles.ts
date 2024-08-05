@@ -32,7 +32,7 @@ exports.onExecutePostLogin = async (
       scope: 'read:users update:users read:roles',
     })
 
-    const params = { id: event.user!.user_id }
+    const params = { id: event.user.user_id }
     const data = { roles: DEFAULT_ROLES }
 
     // If the user is brand new there's no way that they have that role applied,
@@ -43,7 +43,7 @@ exports.onExecutePostLogin = async (
     }
 
     // Otherwise we need to check the roles currently assigned to the user
-    const roles = await management.users.getRoles({ id: event.user!.user_id })
+    const roles = await management.users.getRoles({ id: event.user.user_id })
     const roleIds = roles.data.map((role: { id: string }) => role.id)
 
     if (!DEFAULT_ROLES.every((defaultRole) => roleIds.includes(defaultRole))) {

@@ -23,8 +23,8 @@ exports.onExecutePostLogin = async (
   }
 
   const namespace = TEMPLATE_DATA.namespace
-  const email = event.user!.email
-  const emailVerified = event.user!.email_verified
+  const email = event.user.email
+  const emailVerified = event.user.email_verified
 
   api.accessToken.setCustomClaim(`${namespace}/email`, email)
   api.accessToken.setCustomClaim(`${namespace}/email_verified`, emailVerified)
