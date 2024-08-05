@@ -91,6 +91,36 @@ export const RULE_MANIFEST: RuleDefinition[] = [
   },
 ]
 
+export const ACTION_MANIFEST: ActionDefinition[] = [
+  {
+    name: 'Log Context',
+    file: 'log-context',
+    enabled: false,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
+  },
+  {
+    name: 'Add Default Role To All Users',
+    file: 'add-default-roles',
+    enabled: true,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
+    getData: async () => {
+      const defaultRoleNames = [
+        'User-Basic-Role',
+        'Parfit User',
+        'EA Funds User',
+        'Giving What We Can User',
+      ]
+      const Roles = await getAllRoles()
+      const defaultRoles = Roles.filter(isValidRole)
+        .filter((Role) => defaultRoleNames.includes(Role.name))
+        .map((Role) => getCommentValue({ value: Role.id, roleName: Role.name }))
+      return { defaultRoles }
+    },
+  },
+]
+
 /**
  * List of Database Action Scripts to Deploy.
  *
