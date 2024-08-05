@@ -60,7 +60,8 @@ exports.onExecutePostLogin = async (
     return
   }
 
-  const clientId = event.user?.user_id!
+  const userId = event.user?.user_id!
+  const clientId = event.client?.clientId!
 
   // Whitelist of applications that can access the full set of scopes
   const allowAllScopesWhitelist: string[] =
@@ -96,7 +97,7 @@ exports.onExecutePostLogin = async (
   }
 
   // get the user's canonical set of permissions
-  const userPermissions = await getUserPermissions(clientId)
+  const userPermissions = await getUserPermissions(userId)
 
   const userScopes = userPermissions.map(
     (permissionObj) => permissionObj.permission_name!
@@ -108,6 +109,8 @@ exports.onExecutePostLogin = async (
     // requested_scopes isn't given for certain login flows, such as embedded username/password forms.
     // See here for more info: https://community.auth0.com/t/knowledge-find-requested-scopes-in-actions-for-refresh-token-client-credential-exchange-or-ropg/126154
     event.request?.body.scope.split(' ') ||
+    // event.request?.query.scope included to match previous Rule version, I'm not sure if it will ever fall back this far
+    event.request?.query.scope.split(' ') ||
     []
 
   // get a list of the whitelisted scopes that the user has access to
@@ -139,16 +142,6 @@ exports.onExecutePostLogin = async (
 
   const finalScopes = requestedScopes.filter((s) => allowedScopes.includes(s))
   const requiredApplications = TEMPLATE_DATA.addScopesToIdTokenApplications
-
-  console.log({
-    requestedScopes,
-    allowedUserScopes,
-    allowedScopes,
-    removedScopes,
-    finalScopes,
-    requiredApplications,
-  })
-  // To verify: log profile from auth0
 
   if (requiredApplications.includes(clientId)) {
     const namespace: string = TEMPLATE_DATA.namespace
