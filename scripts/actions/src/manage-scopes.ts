@@ -99,9 +99,9 @@ exports.onExecutePostLogin = async (
   // get the user's canonical set of permissions
   const userPermissions = await getUserPermissions(userId)
 
-  const userScopes = userPermissions.map(
-    (permissionObj) => permissionObj.permission_name!
-  )
+  const userScopes = userPermissions
+    .map((permissionObj) => permissionObj.permission_name)
+    .filter((name): name is string => !!name)
 
   // scopes that the client application has requested on behalf of the user
   const requestedScopes: string[] =

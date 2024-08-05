@@ -22,14 +22,10 @@ exports.onExecutePostLogin = async (
     return
   }
 
-  if (!event.authorization) return
-
   const namespace = TEMPLATE_DATA.namespace
   const email = event.user!.email
   const emailVerified = event.user!.email_verified
 
-  if (event.authorization) {
-    api.accessToken.setCustomClaim(`${namespace}/email`, email)
-    api.accessToken.setCustomClaim(`${namespace}/email_verified`, emailVerified)
-  }
+  api.accessToken.setCustomClaim(`${namespace}/email`, email)
+  api.accessToken.setCustomClaim(`${namespace}/email_verified`, emailVerified)
 }
