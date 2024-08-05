@@ -32,9 +32,14 @@ exports.onExecutePostLogin = async (
   event: DefaultPostLoginEvent,
   api: DefaultPostLoginApi
 ) => {
-  // Skip if the analogous Rule was executed first. You can get this ID from the Rules
-  // page in the Auth0 dashboard (https://manage.auth0.com/#/rules)
-  if (api.rules.wasExecuted('rul_iFouQc7sxIAebmG9')) {
+  // Skip if the analogous Rule was executed first. You can get these IDs from the Rules
+  // page in the Auth0 dashboard (https://manage.auth0.com/#/rules), separate values are for dev, staging and prod
+  const rules = api.rules
+  if (
+    rules.wasExecuted('rul_iFouQc7sxIAebmG9') ||
+    rules.wasExecuted('rul_ytSv3P9tcJqlXDLG') ||
+    rules.wasExecuted('rul_Bwm6gas2fMgn02xq')
+  ) {
     return
   }
 
