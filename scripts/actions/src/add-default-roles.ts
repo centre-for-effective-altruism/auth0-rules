@@ -45,7 +45,7 @@ exports.onExecutePostLogin = async (
       await management.users.assignRoles(params, data)
     }
   } catch (error) {
-    // @ts-ignore
+    // @ts-ignore `error` is assumed to have type "unknown", when actually it will always be an Error. Casting isn't sufficient because the types annotations are dropped in the deployed version
     api.access.deny(`Failed to set default role: ${error?.message}`)
   }
 }
