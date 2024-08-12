@@ -1,4 +1,4 @@
-import { PostLoginEvent, PostLoginApi } from 'auth0-actions'
+import { PostLoginEvent, PostLoginApi, UserBase, Client } from 'auth0-actions'
 
 export interface ActionsDefaultSecrets {
   AUTH0_DOMAIN: string
@@ -12,6 +12,9 @@ export interface ActionsDefaultSecrets {
 export interface DefaultPostLoginEvent
   extends PostLoginEvent<ActionsDefaultSecrets, any, any, any> {
   secrets: ActionsDefaultSecrets
+  // `user` and `client` are not optional according to https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow/event-object
+  user: UserBase<any, any>
+  client: Client<any>
 }
 
 export interface DefaultPostLoginApi extends PostLoginApi {

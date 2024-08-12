@@ -93,11 +93,15 @@ export const RULE_MANIFEST: RuleDefinition[] = [
 
 export const ACTION_MANIFEST: ActionDefinition[] = [
   {
-    name: 'Log Context',
-    file: 'log-context',
-    enabled: false,
+    name: 'Add email to access token',
+    file: 'email-to-access-token',
+    enabled: true,
     trigger: 'post-login',
     triggerVersion: 'v3',
+    getData: () => {
+      const namespace = process.env.TOKEN_NAMESPACE
+      return { namespace }
+    },
   },
   {
     name: 'Add Default Role To All Users',
@@ -118,6 +122,62 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
         .map((Role) => getCommentValue({ value: Role.id, roleName: Role.name }))
       return { defaultRoles }
     },
+  },
+  {
+    name: 'Manage scopes',
+    file: 'manage-scopes',
+    enabled: true,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
+    getData: async () => {
+      // Get token namespace
+      const namespace = process.env.TOKEN_NAMESPACE
+
+      const allowAllScopesApplicationNames = [
+        'EA Funds',
+        'Giving What We Can',
+        'Parfit Admin',
+      ]
+
+      const scopesToIdTokenApplicationNames = ['Giving What We Can']
+
+      const Clients = await getAllClients()
+      const validClients = Clients.filter(isValidClient)
+      const allowAllScopesWhitelist = validClients
+        .filter((Client) =>
+          allowAllScopesApplicationNames.includes(Client.name)
+        )
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
+
+      const addScopesToIdTokenApplications = Clients.filter(isValidClient)
+        .filter((Client) =>
+          scopesToIdTokenApplicationNames.includes(Client.name)
+        )
+        .map((Client) =>
+          getCommentValue({
+            applicationName: Client.name,
+            value: Client.client_id,
+          })
+        )
+
+      return {
+        allowAllScopesWhitelist,
+        addScopesToIdTokenApplications,
+        namespace,
+      }
+    },
+  },
+  {
+    name: 'Log Context',
+    file: 'log-context',
+    enabled: false,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
   },
 ]
 
