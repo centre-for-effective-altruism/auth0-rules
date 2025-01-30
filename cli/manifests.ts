@@ -16,7 +16,7 @@ export const RULE_MANIFEST: RuleDefinition[] = [
   {
     name: 'Add email to access token',
     file: 'email-to-access-token',
-    enabled: true,
+    enabled: false,
     getData: () => {
       const namespace = process.env.TOKEN_NAMESPACE
       return { namespace }
@@ -25,7 +25,7 @@ export const RULE_MANIFEST: RuleDefinition[] = [
   {
     name: 'Add Default Role To All Users',
     file: 'add-default-roles',
-    enabled: true,
+    enabled: false,
     getData: async () => {
       const defaultRoleNames = [
         'User-Basic-Role',
@@ -43,7 +43,7 @@ export const RULE_MANIFEST: RuleDefinition[] = [
   {
     name: 'Filter scopes',
     file: 'filter-scopes',
-    enabled: true,
+    enabled: false,
     getData: async () => {
       const applicationNames = [
         'EA Funds',
@@ -65,7 +65,7 @@ export const RULE_MANIFEST: RuleDefinition[] = [
   {
     name: 'Add Scopes to ID Token',
     file: 'add-scopes-to-id-token',
-    enabled: true,
+    enabled: false,
     getData: async () => {
       // Get token namespace
       const namespace = process.env.TOKEN_NAMESPACE
