@@ -7,6 +7,7 @@ import {
   DbScriptCallback,
   ForumUser,
 } from '../types/db-types'
+import '@tepez/auth0-rules-types'
 
 /** Authenticates a user against existing user databases */
 async function login(
@@ -20,18 +21,15 @@ async function login(
     const { createHash } = require('crypto') as {
       createHash: typeof createHash_
     }
-    const { Client: PGClient } = require('pg@8.7.1')
-    const { MongoClient } = require('mongodb@3.1.4')
+    const { MongoClient } = require('mongodb@4.1.0')
 
     /**
      * `configuration` is declared a global by @typez/auth0-rules-types, and
      * there's no way to undo that. We must resort to a hack here to inform
      * typescript of the actual shape of `configuration`
      */
-    const {
-      MONGO_URI,
-      MONGO_DB_NAME,
-    } = (configuration as unknown) as DbConfiguration
+    const { MONGO_URI, MONGO_DB_NAME } =
+      configuration as unknown as DbConfiguration
 
     /**
      * Logic in this function tries to match:

@@ -10,17 +10,6 @@ exports.onExecutePostLogin = async (
   event: DefaultPostLoginEvent,
   api: DefaultPostLoginApi
 ) => {
-  // Skip if the analogous Rule was executed first. You can get these IDs from the Rules
-  // page in the Auth0 dashboard (https://manage.auth0.com/#/rules). Separate values are for dev, staging and prod
-  const rules = api.rules
-  if (
-    rules.wasExecuted('rul_bnNiRxFsMNMFESXI') ||
-    rules.wasExecuted('rul_5Vw7afGhK3xK6e7h') ||
-    rules.wasExecuted('rul_4kOsLbpioVFXGpgj')
-  ) {
-    return
-  }
-
   try {
     const DEFAULT_ROLES: string[] = TEMPLATE_DATA.defaultRoles
 

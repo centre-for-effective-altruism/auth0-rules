@@ -49,17 +49,6 @@ exports.onExecutePostLogin = async (
   event: DefaultPostLoginEvent,
   api: DefaultPostLoginApi
 ) => {
-  // Skip if the analogous Rule was executed first. You can get these IDs from the Rules
-  // page in the Auth0 dashboard (https://manage.auth0.com/#/rules). Separate values are for dev, staging and prod
-  const rules = api.rules
-  if (
-    rules.wasExecuted('rul_iFouQc7sxIAebmG9') ||
-    rules.wasExecuted('rul_ytSv3P9tcJqlXDLG') ||
-    rules.wasExecuted('rul_Bwm6gas2fMgn02xq')
-  ) {
-    return
-  }
-
   const userId = event.user.user_id
   const clientId = event.client.client_id
 
@@ -129,22 +118,5 @@ exports.onExecutePostLogin = async (
 
   for (const scope of removedScopes) {
     api.accessToken.removeScope(scope)
-  }
-
-  // Add scopes to id token
-  if (
-    rules.wasExecuted('rul_xCrJeqQqQV9mpcgd') ||
-    rules.wasExecuted('rul_hXiFiwDPhyZMzaeb') ||
-    rules.wasExecuted('rul_q2BiNgZu7CvnyNx5')
-  ) {
-    return
-  }
-
-  const finalScopes = requestedScopes.filter((s) => allowedScopes.includes(s))
-  const requiredApplications = TEMPLATE_DATA.addScopesToIdTokenApplications
-
-  if (requiredApplications.includes(clientId)) {
-    const namespace: string = TEMPLATE_DATA.namespace
-    api.idToken.setCustomClaim(`${namespace}/scope`, finalScopes.join(' '))
   }
 }
