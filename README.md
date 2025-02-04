@@ -1,6 +1,7 @@
 # Auth0 Rules
 
-A utility for managing rule and db script definitions on an Auth0 tenant.
+A utility for managing actions and db script definitions on an Auth0 tenant.
+Called "auth0-rules" because "Rules" were deprecated in favour of "Actions".
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -8,7 +9,7 @@ A utility for managing rule and db script definitions on an Auth0 tenant.
 ## Contents
 
 - [Context](#context)
-  - [Context on Rules](#context-on-rules)
+  - [Context on Actions](#context-on-actions)
   - [Context on Database Action Scripts](#context-on-database-action-scripts)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -16,10 +17,8 @@ A utility for managing rule and db script definitions on an Auth0 tenant.
 - [Environment and Permissions](#environment-and-permissions)
 - [Structure and compilation](#structure-and-compilation)
 - [Defining Scripts](#defining-scripts)
-  - [Basic rule structure](#basic-rule-structure)
   - [External dependencies](#external-dependencies)
-  - [Manifests](#manifests)
-  - [Rule ordering](#rule-ordering)
+  - [Actions ordering](#actions-ordering)
   - [Templating](#templating)
 - [Running Database Action Scripts against a local dev environment](#running-database-action-scripts-against-a-local-dev-environment)
   - [A note on the development connection name](#a-note-on-the-development-connection-name)
@@ -31,13 +30,13 @@ A utility for managing rule and db script definitions on an Auth0 tenant.
 
 [CEA](https://www.centreforeffectivealtruism.org) uses
 [Auth0](https://auth0.com/) to provide authentication and authorization to a
-number of services (e.g. [EA Funds](https://funds.effectivealtruism.org),
-[Giving What We Can](https://www.givingwhatwecan.org), the
-[EA Forum](https://forum.effectivealtruism.org) etc).
+number of services (now mainly the
+[EA Forum](https://forum.effectivealtruism.org), and some other minor ones like
+the EA Survey).
 
 Auth0 provides a number of places where they call our code and allow us to
 perform custom modifications to their default behavior, such as
-[Rules](#context-on-rules), and
+[Actions](#context-on-rules), and
 [Database Action Scripts](#context-on-database-action-scripts) below.
 
 The default method of creating and editing these scripts is to use Auth0's
@@ -47,19 +46,17 @@ are kept in sync between production, staging, and local Auth0 tenants.
 This repo allows us to write our scripts in an IDE, using TypeScript, and then
 automatically deploy them. 😎
 
-### Context on Rules
+### Context on Actions
 
 When users log in, we run a number of
-[rules (part of Auth0's login pipeline)](https://auth0.com/docs/rules) that
+[Actions (part of Auth0's login pipeline)](https://auth0.com/docs/actions) that
 affect the final login state (e.g. what data is present in the user's access
 token or ID token, which permissions they are allowed to request etc.). From
-[the docs](https://auth0.com/docs/rules):
+[the docs](https://auth0.com/docs/actions):
 
-> Rules are JavaScript functions that execute when a user authenticates to your
-> application. They run once the authentication process is complete, and you can
-> use them to customize and extend Auth0's capabilities. For security reasons,
-> your Rules code executes isolated from the code of other Auth0 tenants in a
-> sandbox.
+> Actions are secure, tenant-specific, versioned functions written in Node.js
+> that execute at certain points within the Auth0 platform. Actions are used to
+> customize and extend Auth0's capabilities with custom logic.
 
 ### Context on Database Action Scripts
 
@@ -76,8 +73,7 @@ Yes. Auth0 now takes over management of Torble Dorp's account.
 
 We write two scripts for this to happen: Login, and Get User. Get User is used
 in password resets, and just takes an email as an argument. The scripts are
-managed separately from Rules, but otherwise follow a lot of the same, uh,
-rules.
+managed separately from Actions, but otherwise follow a lot of the same rules.
 
 ## Installation
 
@@ -85,21 +81,21 @@ rules.
   (`git clone https://github.com/centre-for-effective-altruism/auth0-rules.git`)
 - `cd` into the directory (`cd auth0-rules`)
 - Install dependencies (`yarn`)
-- Build the CLI scripts and rule definitions (`yarn build`)
+- Build the CLI scripts and action definitions (`yarn build`)
 
 ## Usage
 
-Sync with Auth0 using `yarn cli [rules|db|login]`
+Sync with Auth0 using `yarn cli [actions|db|login]`
 
 ```
-Usage: yarn cli rules [options] [command]
+Usage: yarn cli actions [options] [command]
 
 Options:
   -h, --help      display help for command
 
 Commands:
-  deploy          Deploy rules to the Auth0 tenant
-  diff            Diff locally defined rules against those on the
+  deploy          Deploy actions to the Auth0 tenant
+  diff            Diff locally defined actions against those on the
                   Auth0 tenant
   help [command]  display help for command
 ```
@@ -109,20 +105,20 @@ Commands:
 #### `deploy`
 
 ```sh
-yarn cli [rules|db|login] deploy
+yarn cli [actions|db|login] deploy
 ```
 
 Deploys all scripts in the manifest to Auth0.
 
-Rules that don't match with those that are already on the Auth0 tenant will be
-created, those that do will be updated. Rules that are defined on Auth0 but that
-aren't in the manifest will be left alone, and will run before all rules that
-are in the manifest.
+Actions that don't match with those that are already on the Auth0 tenant will be
+created, those that do will be updated. Actions that are defined on Auth0 but
+that aren't in the manifest will be left alone, and will run before all Actions
+that are in the manifest.
 
 #### `diff`
 
 ```
-yarn cli [rules|db|login] diff
+yarn cli [actions|db|login] diff
 ```
 
 Diffs locally defined scripts against those defined on the Auth0 tenant.
@@ -130,7 +126,7 @@ Diffs locally defined scripts against those defined on the Auth0 tenant.
 The output will look something like:
 
 ```
-[[ Changed rules ]]
+[[ Changed actions ]]
 - Add Scopes to ID Token:
 -------------------------
  function addScopesToIdToken(user, context, callback) {
@@ -148,18 +144,18 @@ The output will look something like:
    callback(null, user, context);
  }
 
-[[ Up-to-date rules ]]
-3 rules defined in the manifest are identical to those that exist on the Auth0 tenant:
+[[ Up-to-date actions ]]
+3 actions defined in the manifest are identical to those that exist on the Auth0 tenant:
 - Add Default Role To All Users
 - Filter scopes
 - Log Context
 
-[[ Missing rules ]]
-1 rules defined in the manifest do not exist on the Auth0 tenant:
+[[ Missing actions ]]
+1 actions defined in the manifest do not exist on the Auth0 tenant:
 - Add email to access token
 
-[[ Extra rules ]]
-2 rules exist on the Auth0 tenant that are not included in the manifest:
+[[ Extra actions ]]
+2 actions exist on the Auth0 tenant that are not included in the manifest:
 - Simulate Signup Missing-Scope Issue
 - auth0-account-link-extension
 ```
@@ -170,15 +166,16 @@ You'll need to ensure that the Auth0 tenant has a client application set up to
 work with the CLI. The application should be a **Machine-to-Machine**
 application, and needs the following permissions on the `Auth0 Management API`.
 
-**Base permissions (required to manage rules via the API)**
+**Base permissions (required to manage actions via the API)**
 
-- `create:rules`
-- `read:rules`
-- `update:rules`
+- `create:actions`
+- `read:actions`
+- `update:actions`
+- `delete:actions`
 - `read:connections`
 - `update:connections`
 
-**Permissions used by specific rule generators**
+**Permissions used by specific actions**
 
 - `read:clients`
 - `read:roles`
@@ -192,13 +189,9 @@ them to a `.env` file in the project root.
 
 ```
 AUTH0_DOMAIN=<your Auth0 tenant domain>
-AUTH0_CLIENT_ID=<client ID for the Rules Managment client application >
-AUTH0_CLIENT_SECRET=<client secret for the Rules Management client application>
+AUTH0_CLIENT_ID=<client ID for the client application that manages the actions>
+AUTH0_CLIENT_SECRET=<client secret for the above client application>
 ```
-
-Some `TEMPLATE_DATA` values can also be defined in environment variables. For
-instance, the current rules implementation can be configured with the
-`TOKEN_NAMESPACE` variable.
 
 ## Structure and compilation
 
@@ -211,7 +204,7 @@ This repo consists of two main folders:
 These folders are independent TypeScript projects, due to them each requiring
 different compilation options.
 
-- The rule definitions are compiled as standalone `ES2020` scripts. This means
+- The action definitions are compiled as standalone `ES2020` scripts. This means
   that they will compile to Javascript that looks almost identical to the
   TypeScript source (though with type information removed)
 - The CLI scripts are compiled to `ES5` Javascript, for easier consumption by
@@ -222,48 +215,28 @@ can build both at once by running `yarn build` (which is an alias for
 `yarn build:cli && yarn build:scripts`).
 
 You can run `yarn build:scripts:watch` to have TypeScript automatically compile
-rules as you are developing them. If you need to edit the CLI itself (including
-the manifest file), you should also run `yarn build:cli:watch`.
+actions as you are developing them. If you need to edit the CLI itself
+(including the manifest file), you should also run `yarn build:cli:watch`.
 
 ## Defining Scripts
 
 There are two steps to writing an Auth0 script:
 
-Defining the script itself (as a file in e.g. `./scripts/rules/src`)
+Defining the script itself (as a file in e.g. `./scripts/actions/src`)
 
 - [Registering the script in the manifest](#the-manifest) (`./src/manifests`)
 
-Scripts are defined in `./scripts/[rules|db|login]/src`. Each script lives in
+Scripts are defined in `./scripts/[actions|db|login]/src`. Each script lives in
 its own file. They are written as Typescript files (`.ts` extension).
-
-### Basic rule structure
-
-A basic rule looks like this:
-
-```ts
-import {
-  IAuth0RuleCallback,
-  IAuth0RuleContext,
-  IAuth0RuleUser,
-} from '@tepez/auth0-rules-types'
-
-async function myAwesomeRule(
-  user: IAuth0RuleUser<unknown, unknown>,
-  context: IAuth0RuleContext,
-  callback: IAuth0RuleCallback<unknown, unknown>
-): Promise<void> {
-  // Do some fun things here
-
-  // Return the updated user/context back to the rules pipeline
-  callback(null, user, context)
-}
-```
 
 ### External dependencies
 
-Because the rules will be executed in the context of the Auth0 WebTask
+Because the actions will be executed in the context of the Auth0 WebTask
 environment, they can't use imports from other files. This means that the only
-`import` statements in a rule definition file should be TypeScript typings.
+`import` statements in an action definition file should be TypeScript typings.
+
+_Note: Examples below use the now-deprecated "Rules" instead of Actions, but the
+idea is the same_
 
 ```ts
 // These are type definitions, which will be removed at build time by the TS compiler
@@ -320,46 +293,21 @@ async function addDefaultRole(
 For a full list of modules that can be dynamically required, see the
 [Auth0 Extensions 'Can I Require' tool](https://auth0-extensions.github.io/canirequire/).
 Further discussion about using modules can be found
-[in the Auth0 docs](https://auth0.com/docs/best-practices/rules-best-practices/rules-environment-best-practices).
+[in the Auth0 docs](https://auth0.com/docs/customize/actions/action-coding-guidelines).
 
-### Manifests
+### Actions ordering
 
-A manifest declares the scripts that will be deployed to Auth0. They are found
-in `./src/manifest.ts`.
+Actions run in series. When deployed, the actions will be ordered as follows:
 
-A manifest consists of an array of either `RuleDefinitions` or
-`DBActionScriptDefinition`. Rule Definitions are objects with the following
-properties:
-
-- `name` (string): The name of the rule that will appear in the Auth0 UI. This
-  is used to match against existing rules on Auth0 for the purpose of diffing
-  and deploying, so it should be unique (and if you're adding a rule that
-  already exists on Auth0 to this repo, you should use the name of the existing
-  rule).
-- `file` (string): The filename (without extension) of the rule definition file
-  matching this rule, in `./rules/src`.
-- `enabled` (boolean): Whether this rule is enabled or not
-- `getData` (function): [optional] A function that gets data from the Auth0
-  tenant that should be injected into the rule (see [Templating](#templating)
-  below). Should return an object with keys corresponding to Handlebars template
-  variables. Can be `async`.
-
-Database Action Script Definitions are the same but without `enabled`, as they
-cannot be disabled.
-
-### Rule ordering
-
-Rules run in series. When deployed, the rules will be ordered as follows:
-
-- Any rules that are on the Auth0 tenant, but that aren't defined in the
+- Any actions that are on the Auth0 tenant, but that aren't defined in the
   manifest will run first, in their current order
-- Rules defined in the manifest will run in the order that they are defined in
+- Actions defined in the manifest will run in the order that they are defined in
   the manifest
 
 ### Templating
 
 Sometimes, we need to inject variables that will be different on each Auth0
-tenant. For example, maybe you only want a rule to apply to certain
+tenant. For example, maybe you only want an action to apply to certain
 applications, so you want to use a list of these application IDs into your
 function – obviously these IDs will be different on different tenants. Instead
 of hard-coding these values into the script code, you can instead inject a
@@ -367,8 +315,8 @@ of hard-coding these values into the script code, you can instead inject a
 function in the script manifest.
 
 The `TEMPLATE_DATA` variable is declared as a TypeScript global with type
-`Record<string, any>`, so rule file will compile happily. It's a good idea to
-type any assignments in your rule function:
+`Record<string, any>`, so the action file will compile happily. It's a good idea
+to type any assignments in your action function:
 
 ```ts
 function myGreatFunction() {
@@ -377,7 +325,7 @@ function myGreatFunction() {
 }
 ```
 
-When scripts are compiled, any rule that has a `getData()` property on its
+When scripts are compiled, any action that has a `getData()` property on its
 manifest will inject a `TEMPLATE_DATA` variable into the top of the function
 declaration:
 
@@ -439,55 +387,82 @@ See the example below for a full demonstration of how this works end-to-end.
 
 #### Templating example
 
-Rule definition (e.g. `./rules/add-scopes-to-id-token.ts`).
+Action definition (e.g. `./actions/add-default-roles.ts`).
 
 ```ts
+import type { ManagementClient } from 'auth0'
 import {
-  IAuth0RuleUser,
-  IAuth0RuleContext,
-  IAuth0RuleCallback,
-} from '@tepez/auth0-rules-types'
+  DefaultPostLoginApi,
+  DefaultPostLoginEvent,
+} from '../types/auth0-actions'
 
-function addScopesToIdToken(
-  user: IAuth0RuleUser<unknown, unknown>,
-  context: IAuth0RuleContext,
-  callback: IAuth0RuleCallback<unknown, unknown>
-) {
-  const requiredApplications: string[] = TEMPLATE_DATA.whitelist
-  // only run if our application is on the list
-  if (requiredApplications.includes(context.clientID)) {
-    const namespace = 'https://parfit.effectivealtruism.org'
-    context.idToken[`${namespace}/scope`] = context.accessToken.scope
+const auth0Sdk = require('auth0')
+
+exports.onExecutePostLogin = async (
+  event: DefaultPostLoginEvent,
+  api: DefaultPostLoginApi
+) => {
+  try {
+    const DEFAULT_ROLES: string[] = TEMPLATE_DATA.defaultRoles
+
+    const ManagementClient = auth0Sdk.ManagementClient
+    const management: ManagementClient = new ManagementClient({
+      domain: event.secrets.AUTH0_DOMAIN,
+      clientId: event.secrets.AUTH0_CLIENT_ID,
+      clientSecret: event.secrets.AUTH0_CLIENT_SECRET,
+      scope: 'read:users update:users read:roles',
+    })
+
+    const params = { id: event.user.user_id }
+    const data = { roles: DEFAULT_ROLES }
+
+    // If the user is brand new there's no way that they have that role applied,
+    // so we always add the roles
+    if (event.stats!.logins_count === 0) {
+      await management.users.assignRoles(params, data)
+      return
+    }
+
+    // Otherwise we need to check the roles currently assigned to the user
+    const roles = await management.users.getRoles({ id: event.user.user_id })
+    const roleIds = roles.data.map((role: { id: string }) => role.id)
+
+    if (!DEFAULT_ROLES.every((defaultRole) => roleIds.includes(defaultRole))) {
+      await management.users.assignRoles(params, data)
+    }
+  } catch (error) {
+    // @ts-ignore `error` is assumed to have type `unknown`, when actually it will always be an `Error`. Casting isn't sufficient because the types annotations are dropped in the deployed version
+    api.access.deny(`Failed to set default role: ${error?.message}`)
   }
-
-  callback(null, user, context)
 }
 ```
 
 Manifest entry:
 
 ```ts
-const MANIFEST = [
-  // Other rules...
+export const ACTION_MANIFEST: ActionDefinition[] = [
+  ...
   {
-    name: 'Add Scopes to ID Token',
-    file: 'add-scopes-to-id-token',
+    name: 'Add Default Role To All Users',
+    file: 'add-default-roles',
     enabled: true,
+    trigger: 'post-login',
+    triggerVersion: 'v3',
     getData: async () => {
-      const applicationNames = ['Giving What We Can']
-      const Clients = await getAllClients()
-      const whitelist = Clients.filter(isValidClient)
-        .filter((Client) => applicationNames.includes(Client.name))
-        .map((Client) =>
-          getCommentValue({
-            applicationName: Client.name,
-            value: Client.client_id,
-          })
-        )
-      return { whitelist }
+      const defaultRoleNames = [
+        'User-Basic-Role',
+        'Parfit User',
+        'EA Funds User',
+        'Giving What We Can User',
+      ]
+      const Roles = await getAllRoles()
+      const defaultRoles = Roles.filter(isValidRole)
+        .filter((Role) => defaultRoleNames.includes(Role.name))
+        .map((Role) => getCommentValue({ value: Role.id, roleName: Role.name }))
+      return { defaultRoles }
     },
   },
-  // More rules...
+  ...
 ]
 ```
 
@@ -495,36 +470,76 @@ The `getData` call will return the following object:
 
 ```js
 {
-  whitelist: [
+  defaultRoles: [
     {
-      applicationName: 'Giving What We Can',
-      value: 'abc123def456',
+      applicationName: 'EA Forum',
+      value: [
+        'User-Basic-Role',
+        'Parfit User',
+        'EA Funds User',
+        'Giving What We Can User',
+      ],
     },
-  ]
+  ].map((item) => item.value),
 }
 ```
 
-Which will be compiled into the following rule code:
+Which will be compiled into the following action code:
 
-```js
-function addScopesToIdToken(user, context, callback) {
-  // Template data
-  const TEMPLATE_DATA = {
-    whitelist: [
-      {
-        applicationName: 'Giving What We Can',
-        value: 'abc123def456',
-      },
-    ].map((item) => item.value),
-  }
+```ts
+import type { ManagementClient } from 'auth0'
+import {
+  DefaultPostLoginApi,
+  DefaultPostLoginEvent,
+} from '../types/auth0-actions'
 
-  const requiredApplications = TEMPLATE_DATA.whitelist
-  // only run if our application is on the list
-  if (requiredApplications.includes(context.clientID)) {
-    const namespace = 'https://parfit.effectivealtruism.org'
-    context.idToken[`${namespace}/scope`] = context.accessToken.scope.join(' ')
+const auth0Sdk = require('auth0')
+
+const TEMPLATE_DATA = {
+  defaultRoles: [
+    'User-Basic-Role',
+    'Parfit User',
+    'EA Funds User',
+    'Giving What We Can User',
+  ].map((item) => item.value),
+}
+
+exports.onExecutePostLogin = async (
+  event: DefaultPostLoginEvent,
+  api: DefaultPostLoginApi
+) => {
+  try {
+    const DEFAULT_ROLES: string[] = TEMPLATE_DATA.defaultRoles
+
+    const ManagementClient = auth0Sdk.ManagementClient
+    const management: ManagementClient = new ManagementClient({
+      domain: event.secrets.AUTH0_DOMAIN,
+      clientId: event.secrets.AUTH0_CLIENT_ID,
+      clientSecret: event.secrets.AUTH0_CLIENT_SECRET,
+      scope: 'read:users update:users read:roles',
+    })
+
+    const params = { id: event.user.user_id }
+    const data = { roles: DEFAULT_ROLES }
+
+    // If the user is brand new there's no way that they have that role applied,
+    // so we always add the roles
+    if (event.stats!.logins_count === 0) {
+      await management.users.assignRoles(params, data)
+      return
+    }
+
+    // Otherwise we need to check the roles currently assigned to the user
+    const roles = await management.users.getRoles({ id: event.user.user_id })
+    const roleIds = roles.data.map((role: { id: string }) => role.id)
+
+    if (!DEFAULT_ROLES.every((defaultRole) => roleIds.includes(defaultRole))) {
+      await management.users.assignRoles(params, data)
+    }
+  } catch (error) {
+    // @ts-ignore `error` is assumed to have type `unknown`, when actually it will always be an `Error`. Casting isn't sufficient because the types annotations are dropped in the deployed version
+    api.access.deny(`Failed to set default role: ${error?.message}`)
   }
-  callback(null, user, context)
 }
 ```
 
@@ -567,7 +582,7 @@ username and password authentication.
 
 ## Automatic deploys
 
-We use GitHub actions to auto-deploy these rules to the relevant Auth0 tenant
+We use GitHub actions to auto-deploy these actions to the relevant Auth0 tenant
 when merging to `master` or `dev`.
 
 To check that deployment worked, check the workflow run of
