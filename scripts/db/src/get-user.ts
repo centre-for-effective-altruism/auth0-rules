@@ -5,6 +5,7 @@ import {
   DbScriptCallback,
   ForumUser,
 } from '../types/db-types'
+import '@tepez/auth0-rules-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just

@@ -7,6 +7,7 @@ import {
   DbScriptCallback,
   ForumUser,
 } from '../types/db-types'
+import '@tepez/auth0-rules-types'
 
 /** Authenticates a user against existing user databases */
 async function login(
