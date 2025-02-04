@@ -31,12 +31,7 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
     trigger: 'post-login',
     triggerVersion: 'v3',
     getData: async () => {
-      const defaultRoleNames = [
-        'User-Basic-Role',
-        'Parfit User',
-        'EA Funds User',
-        'Giving What We Can User',
-      ]
+      const defaultRoleNames = ['User-Basic-Role', 'EA Funds User']
       const Roles = await getAllRoles()
       const defaultRoles = Roles.filter(isValidRole)
         .filter((Role) => defaultRoleNames.includes(Role.name))
@@ -54,13 +49,7 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
       // Get token namespace
       const namespace = process.env.TOKEN_NAMESPACE
 
-      const allowAllScopesApplicationNames = [
-        'EA Funds',
-        'Giving What We Can',
-        'Parfit Admin',
-      ]
-
-      const scopesToIdTokenApplicationNames = ['Giving What We Can']
+      const allowAllScopesApplicationNames = ['EA Funds']
 
       const Clients = await getAllClients()
       const validClients = Clients.filter(isValidClient)
@@ -75,20 +64,8 @@ export const ACTION_MANIFEST: ActionDefinition[] = [
           })
         )
 
-      const addScopesToIdTokenApplications = Clients.filter(isValidClient)
-        .filter((Client) =>
-          scopesToIdTokenApplicationNames.includes(Client.name)
-        )
-        .map((Client) =>
-          getCommentValue({
-            applicationName: Client.name,
-            value: Client.client_id,
-          })
-        )
-
       return {
         allowAllScopesWhitelist,
-        addScopesToIdTokenApplications,
         namespace,
       }
     },

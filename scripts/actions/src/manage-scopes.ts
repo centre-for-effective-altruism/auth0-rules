@@ -119,13 +119,4 @@ exports.onExecutePostLogin = async (
   for (const scope of removedScopes) {
     api.accessToken.removeScope(scope)
   }
-
-  // Add scopes to id token
-  const finalScopes = requestedScopes.filter((s) => allowedScopes.includes(s))
-  const requiredApplications = TEMPLATE_DATA.addScopesToIdTokenApplications
-
-  if (requiredApplications.includes(clientId)) {
-    const namespace: string = TEMPLATE_DATA.namespace
-    api.idToken.setCustomClaim(`${namespace}/scope`, finalScopes.join(' '))
-  }
 }
