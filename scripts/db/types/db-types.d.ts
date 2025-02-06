@@ -50,3 +50,7 @@ export type ForumUser = {
    */
   emails: { address: string; verified: boolean }[]
 }
+
+declare global {
+  const configuration: DbConfiguration
+}
