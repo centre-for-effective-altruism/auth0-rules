@@ -1,11 +1,5 @@
 import { MongoClient } from 'mongodb'
-import {
-  CallbackUser,
-  DbConfiguration,
-  DbScriptCallback,
-  ForumUser,
-} from '../types/db-types'
-import '@tepez/auth0-rules-types'
+import { CallbackUser, DbScriptCallback, ForumUser } from '../types/db-types'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
 // good code-sharing functionality into this repo. But notice that we can't just
@@ -34,13 +28,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
     /** Get required dependencies */
     const { MongoClient } = require('mongodb@4.1.0')
 
-    /**
-     * `configuration` is declared a global by @typez/auth0-rules-types, and
-     * there's no way to undo that. We must resort to a hack here to inform
-     * typescript of the actual shape of `configuration`
-     */
-    const { MONGO_URI, MONGO_DB_NAME } =
-      configuration as unknown as DbConfiguration
+    const { MONGO_URI, MONGO_DB_NAME } = configuration
 
     /**
      * Logic in this function tries to match:
