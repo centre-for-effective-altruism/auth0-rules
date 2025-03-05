@@ -57,7 +57,7 @@ async function login(
         SELECT * FROM users 
         WHERE EXISTS (
           SELECT 1 FROM unnest(emails) AS email
-          WHERE LOWER(email) = LOWER($1)
+          WHERE LOWER(email->>'address') = LOWER($1)
         )
       `
       const res = await pgClient.query<ForumUser>(forumQuery, [email])

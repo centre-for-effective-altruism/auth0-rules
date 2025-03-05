@@ -31,8 +31,6 @@ export interface DbConfiguration {
   POSTGRES_HOST: string
   POSTGRES_DATABASE: string
   POSTGRES_PORT?: string
-  MONGO_URI: string
-  MONGO_DB_NAME: string
 }
 
 /** Forum user */

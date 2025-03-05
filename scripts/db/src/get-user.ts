@@ -1,9 +1,4 @@
-import {
-  CallbackUser,
-  DbConfiguration,
-  DbScriptCallback,
-  ForumUser,
-} from '../types/db-types'
+import { CallbackUser, DbScriptCallback, ForumUser } from '../types/db-types'
 import { Client as PGClient, ConnectionConfig as PGConnectionConfig } from 'pg'
 
 // TODO: This is pretty copy-pasta-y from login. We should fix this by building
@@ -71,7 +66,7 @@ async function getByEmail(email: string, callback: DbScriptCallback) {
         SELECT * FROM "Users"
         WHERE EXISTS (
           SELECT 1 FROM unnest(emails) AS email
-          WHERE LOWER(email) = LOWER($1)
+          WHERE LOWER(email->>'address') = LOWER($1)
         )
       `
       const res = await pgClient.query<ForumUser>(forumQuery, [email])
