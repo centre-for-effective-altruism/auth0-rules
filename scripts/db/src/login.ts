@@ -83,7 +83,7 @@ async function login(
         .digest('hex')
       const isValid = await bcrypt.compare(
         meteorClientSideHash,
-        forumUser.services.password.bcrypt
+        forumUser.services.password?.bcrypt
       )
       if (!isValid) {
         return null
