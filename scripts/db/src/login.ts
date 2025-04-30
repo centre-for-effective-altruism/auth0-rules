@@ -54,7 +54,7 @@ async function login(
 
       /** Query the users table for someone with our email */
       const forumQuery = `
-        SELECT * FROM users 
+        SELECT * FROM users
         WHERE EXISTS (
           SELECT 1 FROM unnest(emails) AS email
           WHERE LOWER(email->>'address') = LOWER($1)
@@ -81,9 +81,13 @@ async function login(
       const meteorClientSideHash = createHash('sha256')
         .update(password)
         .digest('hex')
+
+      if (!forumUser.services || !forumUser.services.password) {
+        throw new Error(`No password found, cannot authenticate`)
+      }
       const isValid = await bcrypt.compare(
         meteorClientSideHash,
-        forumUser.services.password?.bcrypt
+        forumUser.services.password.bcrypt
       )
       if (!isValid) {
         return null
