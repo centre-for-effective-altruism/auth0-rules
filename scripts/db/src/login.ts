@@ -54,7 +54,7 @@ async function login(
 
       /** Query the users table for someone with our email */
       const forumQuery = `
-        SELECT * FROM users
+        SELECT * FROM "Users"
         WHERE EXISTS (
           SELECT 1 FROM unnest(emails) AS email
           WHERE LOWER(email->>'address') = LOWER($1)
